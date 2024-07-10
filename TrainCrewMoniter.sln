@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrainCrewMoniter", "TrainCrewMoniter\TrainCrewMoniter.csproj", "{BD550BF3-71AD-4071-8227-E06BE14072BD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BD550BF3-71AD-4071-8227-E06BE14072BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD550BF3-71AD-4071-8227-E06BE14072BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD550BF3-71AD-4071-8227-E06BE14072BD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BD550BF3-71AD-4071-8227-E06BE14072BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD550BF3-71AD-4071-8227-E06BE14072BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD550BF3-71AD-4071-8227-E06BE14072BD}.Release|x64.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C293E9DF-C326-4B2E-9CD0-8C41D489A45E}
+	EndGlobalSection
+EndGlobal

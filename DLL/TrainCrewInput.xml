@@ -1,0 +1,245 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>TrainCrewInput</name>
+    </assembly>
+    <members>
+        <member name="T:TrainCrew.TrainCrewInput">
+            <summary>
+            TrainCrewの入出力
+            </summary>
+        </member>
+        <member name="M:TrainCrew.TrainCrewInput.Init">
+            <summary>
+            初期化を行います。
+            </summary>
+        </member>
+        <member name="M:TrainCrew.TrainCrewInput.SetNotch(System.Int32)">
+            <summary>
+            ノッチをセットします。変化時のみの呼び出しで問題ありません。
+            力行側は正の値、制動側は負の値で入力します
+            EB:-8
+            B6:-7
+            B1:-2
+            抑速:-1
+            N:0
+            P1:1
+            P5:5
+            </summary>
+            <param name="notch"></param>
+        </member>
+        <member name="M:TrainCrew.TrainCrewInput.SetReverser(System.Int32)">
+            <summary>
+            レバーサをセットします。変化時のみの呼び出しで問題ありません。
+            1:前進
+            0:中立
+            -1:後進
+            </summary>
+            <param name="dir"></param>
+        </member>
+        <member name="M:TrainCrew.TrainCrewInput.SetButton(TrainCrew.InputAction,System.Boolean)">
+            <summary>
+            ボタンやスイッチの状態を入力します。
+            </summary>
+            <param name="action">入力する種類</param>
+            <param name="on">ONであればtrue、Offであればfalse</param>
+        </member>
+        <member name="M:TrainCrew.TrainCrewInput.SetWiper(System.Int32)">
+            <summary>
+            ワイパーの状態をセットします。
+            </summary>
+            <param name="state">
+            0:OFF
+            1:間欠
+            2:低速
+            3:高速
+            </param>
+        </member>
+        <member name="M:TrainCrew.TrainCrewInput.GetTrainState">
+            <summary>
+            運転列車の状態を取得します
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:TrainCrew.InputAction.NotchUp">
+            <summary>
+            力行側へ1段
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.NotchDw">
+            <summary>
+            制動側へ1段
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.NotchN">
+            <summary>
+            ノッチをNにする
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.NotchToN">
+            <summary>
+            ノッチをN側へ1段
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.NotchEB">
+            <summary>
+            EBノッチ
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.NotchB1">
+            <summary>
+            B1ノッチ
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.GradientStart">
+            <summary>
+            勾配起動スイッチ
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.Buzzer">
+            <summary>
+            連絡ブザ
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.HornAir">
+            <summary>
+            空笛
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.HornEle">
+            <summary>
+            電笛
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.ViewChange">
+            <summary>
+            外部視点との切り替え
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.PauseMenu">
+            <summary>
+            ポーズメニュー
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.ViewDiagram">
+            <summary>
+            スタフの表示非表示
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.ViewUserInterface">
+            <summary>
+            画面表示の表示非表示
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.ViewHome">
+            <summary>
+            視点の回転をリセット
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.EBReset">
+            <summary>
+            EBをリセット
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.DriverViewR">
+            <summary>
+            右側へ視点移動
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.DriverViewL">
+            <summary>
+            左側へ視点移動
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.DriverViewC">
+            <summary>
+            運転席へ視点移動
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.LightLow">
+            <summary>
+            前灯減光
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.DoorOpn">
+            <summary>
+            ドア開扉
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.DoorCls">
+            <summary>
+            ドア閉扉
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.ReOpenSW">
+            <summary>
+            再開閉SW
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.JoukouSokusin">
+            <summary>
+            乗降促進SW
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.DoorKey">
+            <summary>
+            ドアスイッチ鍵操作
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.Housou">
+            <summary>
+            車内放送再生
+            </summary>
+        </member>
+        <member name="F:TrainCrew.InputAction.ConductorViewB">
+            <summary>
+            後方確認
+            </summary>
+        </member>
+        <member name="T:TrainCrew.TrainState">
+            <summary>
+            列車の状態
+            </summary>
+        </member>
+        <member name="F:TrainCrew.PanelLamp.DoorClose">
+            <summary>
+            ●戸閉
+            </summary>
+        </member>
+        <member name="F:TrainCrew.PanelLamp.ATS_Ready">
+            <summary>
+            ATS正常
+            </summary>
+        </member>
+        <member name="F:TrainCrew.PanelLamp.ATS_BrakeApply">
+            <summary>
+            ATS動作
+            </summary>
+        </member>
+        <member name="F:TrainCrew.PanelLamp.ATS_Open">
+            <summary>
+            ATS開放
+            </summary>
+        </member>
+        <member name="F:TrainCrew.PanelLamp.RegenerativeBrake">
+            <summary>
+            回生
+            </summary>
+        </member>
+        <member name="F:TrainCrew.PanelLamp.EB_Timer">
+            <summary>
+            EB
+            </summary>
+        </member>
+        <member name="F:TrainCrew.PanelLamp.EmagencyBrake">
+            <summary>
+            非常ブレーキ
+            </summary>
+        </member>
+        <member name="F:TrainCrew.PanelLamp.Overload">
+            <summary>
+            過負荷
+            </summary>
+        </member>
+    </members>
+</doc>
