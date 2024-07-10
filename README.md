@@ -4,7 +4,7 @@ TrainCrewMoniterは、溝月レイル/Acty様製作の列車運転ゲーム「TR
 
 # 実行方法
 
-exeフォルダにある「TrainCrewMoniter.exe」をダブルクリックして起動します。
+「TrainCrewMoniter.exe」をダブルクリックして起動します。
 
 # 作成情報
 
