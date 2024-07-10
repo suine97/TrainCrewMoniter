@@ -1,6 +1,4 @@
-# Name（リポジトリ/プロジェクト/OSSなどの名前）
-
-TrainCrewMoniter
+# TrainCrewMoniter
 
 TrainCrewMoniterは、溝月レイル/Acty様製作の列車運転ゲーム「TRAIN CREW」で動作する、TASC機能付きモニタリングソフトです。
 
