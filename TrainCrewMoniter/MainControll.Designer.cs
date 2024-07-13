@@ -47,6 +47,8 @@
             this.check_TASCEnable = new System.Windows.Forms.CheckBox();
             this.check_TopMost = new System.Windows.Forms.CheckBox();
             this.group_TASC = new System.Windows.Forms.GroupBox();
+            this.label_TASC_Distance = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
             this.label_TASC_Gradient = new System.Windows.Forms.Label();
             this.label_TASC_Notch = new System.Windows.Forms.Label();
             this.label_TASC_SAPPressure = new System.Windows.Forms.Label();
@@ -107,8 +109,6 @@
             this.label20 = new System.Windows.Forms.Label();
             this.label_Car1_BCPress = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
-            this.label_TASC_Distance = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
             this.group_ATSLamp.SuspendLayout();
             this.group_Laｍp.SuspendLayout();
             this.group_CarInfo.SuspendLayout();
@@ -388,6 +388,30 @@
             this.group_TASC.TabIndex = 39;
             this.group_TASC.TabStop = false;
             this.group_TASC.Text = "TASC情報";
+            // 
+            // label_TASC_Distance
+            // 
+            this.label_TASC_Distance.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_TASC_Distance.BackColor = System.Drawing.SystemColors.Control;
+            this.label_TASC_Distance.ForeColor = System.Drawing.Color.Black;
+            this.label_TASC_Distance.Location = new System.Drawing.Point(104, 157);
+            this.label_TASC_Distance.Margin = new System.Windows.Forms.Padding(20, 10, 10, 5);
+            this.label_TASC_Distance.Name = "label_TASC_Distance";
+            this.label_TASC_Distance.Size = new System.Drawing.Size(90, 12);
+            this.label_TASC_Distance.TabIndex = 14;
+            this.label_TASC_Distance.Text = "0.00m";
+            this.label_TASC_Distance.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.ForeColor = System.Drawing.Color.Black;
+            this.label9.Location = new System.Drawing.Point(13, 157);
+            this.label9.Margin = new System.Windows.Forms.Padding(10, 5, 10, 5);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(89, 12);
+            this.label9.TabIndex = 13;
+            this.label9.Text = "TASC開始距離：";
             // 
             // label_TASC_Gradient
             // 
@@ -1121,30 +1145,6 @@
             this.label18.TabIndex = 14;
             this.label18.Text = "BC圧：";
             // 
-            // label_TASC_Distance
-            // 
-            this.label_TASC_Distance.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_TASC_Distance.BackColor = System.Drawing.SystemColors.Control;
-            this.label_TASC_Distance.ForeColor = System.Drawing.Color.Black;
-            this.label_TASC_Distance.Location = new System.Drawing.Point(104, 157);
-            this.label_TASC_Distance.Margin = new System.Windows.Forms.Padding(20, 10, 10, 5);
-            this.label_TASC_Distance.Name = "label_TASC_Distance";
-            this.label_TASC_Distance.Size = new System.Drawing.Size(90, 12);
-            this.label_TASC_Distance.TabIndex = 14;
-            this.label_TASC_Distance.Text = "0.00m";
-            this.label_TASC_Distance.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.ForeColor = System.Drawing.Color.Black;
-            this.label9.Location = new System.Drawing.Point(13, 157);
-            this.label9.Margin = new System.Windows.Forms.Padding(10, 5, 10, 5);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(89, 12);
-            this.label9.TabIndex = 13;
-            this.label9.Text = "TASC開始距離：";
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -1159,7 +1159,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "TrainCrewMoniter Ver.1.0.0 (Build 2024.07.10)";
+            this.Text = "TrainCrewMoniter Ver.1.0.1 (Build 2024.07.13)";
             this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
