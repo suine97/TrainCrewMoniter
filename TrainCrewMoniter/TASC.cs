@@ -53,11 +53,6 @@ namespace TrainCrewMoniter
         private readonly float stopRange = 3.00f;
 
         /// <summary>
-        /// 制動待機距離[m]
-        /// </summary>
-        private readonly float standbyBreakingDistance = 700.0f;
-
-        /// <summary>
         /// 空走時間[s]
         /// </summary>
         private readonly float[] freeRunningTime = new float[10]
@@ -176,6 +171,11 @@ namespace TrainCrewMoniter
         /// 平均勾配値(‰)
         /// </summary>
         public float gradientAverage = 0.0f;
+
+        /// <summary>
+        /// 制動待機距離[m]
+        /// </summary>
+        public float standbyBreakingDistance = 700.0f;
 
         /// <summary>
         /// Xml 上り勾配情報
@@ -323,6 +323,7 @@ namespace TrainCrewMoniter
                 gradientAverage = 0.0f;
                 stoppingPattern = 0.0f;
                 stoppingReductionPattern = 0.0f;
+                standbyBreakingDistance = 700.0f;
                 sTASCDistancePhase = "制動待機";
                 sTASCPhase = "解除";
                 IsTASCOperation = false;
@@ -330,12 +331,23 @@ namespace TrainCrewMoniter
                 return;
             }
 
+            //制動待機距離演算
+            {
+                float calcDeceleration = (TrainCrewInput.gameState.driveMode == DriveMode.RTA) ? stoppingDecelerationForTimeAttack : stoppingDeceleration;
+                float calcDistance = CalcTASCStoppingDistance(speed, calcDeceleration);
+                standbyBreakingDistance = calcDistance + 200.0f;
+            }
+
             //勾配平均値演算
             if (stopType.Contains("停車") && remainigDistance < standbyBreakingDistance)
             {
                 var distancePhases = new Dictionary<string, float>
                 {
-                    { "制動待機", 600.0f },
+                    { "制動待機", 1000.0f },
+                    { "1000", 900.0f },
+                    { "900", 800.0f },
+                    { "800", 700.0f },
+                    { "700", 600.0f },
                     { "600", 500.0f },
                     { "500", 400.0f },
                     { "400", 300.0f },
@@ -642,6 +654,23 @@ namespace TrainCrewMoniter
             if (b < 0f) b = 0.0f;
 
             return b;
+        }
+
+        /// <summary>
+        /// TASC 指定速度における停止までの距離演算メソッド
+        /// </summary>
+        /// <param name="nowSpeed"></param>
+        /// <param name="deceleration"></param>
+        /// <returns></returns>
+        private float CalcTASCStoppingDistance(float nowSpeed, float deceleration)
+        {
+            //停止距離演算
+            float d = (float)(Math.Pow(nowSpeed, 2) / (7.2 * deceleration));
+
+            if (nowSpeed.IsZero()) d = 0.0f;
+            if (d < 0f) d = 0.0f;
+
+            return d;
         }
 
         /// <summary>

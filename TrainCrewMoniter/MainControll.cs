@@ -314,6 +314,8 @@ namespace TrainCrewMoniter
                     label_TASC_Notch.Text = "B" + (tasc.iTASCNotch == 0 ? 0 : -(tasc.iTASCNotch + 1));
                 //TASC情報[TASC勾配値]
                 label_TASC_Gradient.Text = tasc.gradientAverage.ToString("F2") + "‰";
+                //TASC情報[TASC開始距離]
+                label_TASC_Distance.Text = tasc.standbyBreakingDistance.ToString("F2") + "m";
 
                 //TASCノッチ出力処理
                 if (tasc.IsSMEEBrake)
@@ -426,7 +428,9 @@ namespace TrainCrewMoniter
                 //TASC情報[TASC段数]
                 label_TASC_Notch.Text = "B0";
                 //TASC情報[TASC勾配値]
-                label_TASC_Gradient.Text = "0.0‰";
+                label_TASC_Gradient.Text = "0.00‰";
+                //TASC情報[TASC開始距離]
+                label_TASC_Distance.Text = "0.00m";
                 //TASC変数
                 tasc.fTASCPatternSpeed = 120f;
                 tasc.fTASCDeceleration = 0f;

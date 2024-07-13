@@ -107,6 +107,8 @@
             this.label20 = new System.Windows.Forms.Label();
             this.label_Car1_BCPress = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
+            this.label_TASC_Distance = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
             this.group_ATSLamp.SuspendLayout();
             this.group_Laｍp.SuspendLayout();
             this.group_CarInfo.SuspendLayout();
@@ -125,7 +127,7 @@
             this.group_ATSLamp.Controls.Add(this.label_ATSLamp_Speed);
             this.group_ATSLamp.Controls.Add(this.label_ATSLamp_Class);
             this.group_ATSLamp.ForeColor = System.Drawing.Color.Black;
-            this.group_ATSLamp.Location = new System.Drawing.Point(12, 263);
+            this.group_ATSLamp.Location = new System.Drawing.Point(12, 285);
             this.group_ATSLamp.Name = "group_ATSLamp";
             this.group_ATSLamp.Size = new System.Drawing.Size(105, 94);
             this.group_ATSLamp.TabIndex = 35;
@@ -184,7 +186,7 @@
             this.group_Laｍp.ForeColor = System.Drawing.Color.Black;
             this.group_Laｍp.Location = new System.Drawing.Point(12, 12);
             this.group_Laｍp.Name = "group_Laｍp";
-            this.group_Laｍp.Size = new System.Drawing.Size(105, 245);
+            this.group_Laｍp.Size = new System.Drawing.Size(105, 267);
             this.group_Laｍp.TabIndex = 36;
             this.group_Laｍp.TabStop = false;
             this.group_Laｍp.Text = "表示灯";
@@ -334,7 +336,7 @@
             this.group_CarInfo.Controls.Add(this.group_Car1);
             this.group_CarInfo.Location = new System.Drawing.Point(123, 12);
             this.group_CarInfo.Name = "group_CarInfo";
-            this.group_CarInfo.Size = new System.Drawing.Size(489, 345);
+            this.group_CarInfo.Size = new System.Drawing.Size(489, 367);
             this.group_CarInfo.TabIndex = 38;
             this.group_CarInfo.TabStop = false;
             this.group_CarInfo.Text = "車両情報";
@@ -366,6 +368,8 @@
             // 
             // group_TASC
             // 
+            this.group_TASC.Controls.Add(this.label_TASC_Distance);
+            this.group_TASC.Controls.Add(this.label9);
             this.group_TASC.Controls.Add(this.label_TASC_Gradient);
             this.group_TASC.Controls.Add(this.label_TASC_Notch);
             this.group_TASC.Controls.Add(this.label_TASC_SAPPressure);
@@ -380,7 +384,7 @@
             this.group_TASC.Controls.Add(this.label1);
             this.group_TASC.Location = new System.Drawing.Point(267, 13);
             this.group_TASC.Name = "group_TASC";
-            this.group_TASC.Size = new System.Drawing.Size(207, 156);
+            this.group_TASC.Size = new System.Drawing.Size(207, 179);
             this.group_TASC.TabIndex = 39;
             this.group_TASC.TabStop = false;
             this.group_TASC.Text = "TASC情報";
@@ -536,7 +540,7 @@
             this.group_Car6.Controls.Add(this.label40);
             this.group_Car6.Controls.Add(this.label_Car6_BCPress);
             this.group_Car6.Controls.Add(this.label42);
-            this.group_Car6.Location = new System.Drawing.Point(325, 255);
+            this.group_Car6.Location = new System.Drawing.Point(325, 278);
             this.group_Car6.Name = "group_Car6";
             this.group_Car6.Size = new System.Drawing.Size(149, 74);
             this.group_Car6.TabIndex = 22;
@@ -610,7 +614,7 @@
             this.group_Car5.Controls.Add(this.label36);
             this.group_Car5.Controls.Add(this.label_Car5_BCPress);
             this.group_Car5.Controls.Add(this.label38);
-            this.group_Car5.Location = new System.Drawing.Point(170, 255);
+            this.group_Car5.Location = new System.Drawing.Point(170, 278);
             this.group_Car5.Name = "group_Car5";
             this.group_Car5.Size = new System.Drawing.Size(149, 74);
             this.group_Car5.TabIndex = 21;
@@ -684,7 +688,7 @@
             this.group_Car4.Controls.Add(this.label32);
             this.group_Car4.Controls.Add(this.label_Car4_BCPress);
             this.group_Car4.Controls.Add(this.label34);
-            this.group_Car4.Location = new System.Drawing.Point(15, 254);
+            this.group_Car4.Location = new System.Drawing.Point(15, 277);
             this.group_Car4.Name = "group_Car4";
             this.group_Car4.Size = new System.Drawing.Size(149, 74);
             this.group_Car4.TabIndex = 20;
@@ -758,7 +762,7 @@
             this.group_Car3.Controls.Add(this.label28);
             this.group_Car3.Controls.Add(this.label_Car3_BCPress);
             this.group_Car3.Controls.Add(this.label30);
-            this.group_Car3.Location = new System.Drawing.Point(325, 175);
+            this.group_Car3.Location = new System.Drawing.Point(325, 198);
             this.group_Car3.Name = "group_Car3";
             this.group_Car3.Size = new System.Drawing.Size(149, 74);
             this.group_Car3.TabIndex = 19;
@@ -832,7 +836,7 @@
             this.group_Car2.Controls.Add(this.label24);
             this.group_Car2.Controls.Add(this.label_Car2_BCPress);
             this.group_Car2.Controls.Add(this.label26);
-            this.group_Car2.Location = new System.Drawing.Point(170, 175);
+            this.group_Car2.Location = new System.Drawing.Point(170, 198);
             this.group_Car2.Name = "group_Car2";
             this.group_Car2.Size = new System.Drawing.Size(149, 74);
             this.group_Car2.TabIndex = 18;
@@ -1050,7 +1054,7 @@
             this.group_Car1.Controls.Add(this.label20);
             this.group_Car1.Controls.Add(this.label_Car1_BCPress);
             this.group_Car1.Controls.Add(this.label18);
-            this.group_Car1.Location = new System.Drawing.Point(15, 174);
+            this.group_Car1.Location = new System.Drawing.Point(15, 197);
             this.group_Car1.Name = "group_Car1";
             this.group_Car1.Size = new System.Drawing.Size(149, 74);
             this.group_Car1.TabIndex = 0;
@@ -1117,12 +1121,36 @@
             this.label18.TabIndex = 14;
             this.label18.Text = "BC圧：";
             // 
+            // label_TASC_Distance
+            // 
+            this.label_TASC_Distance.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_TASC_Distance.BackColor = System.Drawing.SystemColors.Control;
+            this.label_TASC_Distance.ForeColor = System.Drawing.Color.Black;
+            this.label_TASC_Distance.Location = new System.Drawing.Point(104, 157);
+            this.label_TASC_Distance.Margin = new System.Windows.Forms.Padding(20, 10, 10, 5);
+            this.label_TASC_Distance.Name = "label_TASC_Distance";
+            this.label_TASC_Distance.Size = new System.Drawing.Size(90, 12);
+            this.label_TASC_Distance.TabIndex = 14;
+            this.label_TASC_Distance.Text = "0.00m";
+            this.label_TASC_Distance.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.ForeColor = System.Drawing.Color.Black;
+            this.label9.Location = new System.Drawing.Point(13, 157);
+            this.label9.Margin = new System.Windows.Forms.Padding(10, 5, 10, 5);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(89, 12);
+            this.label9.TabIndex = 13;
+            this.label9.Text = "TASC開始距離：";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(624, 371);
+            this.ClientSize = new System.Drawing.Size(624, 391);
             this.Controls.Add(this.group_CarInfo);
             this.Controls.Add(this.group_Laｍp);
             this.Controls.Add(this.group_ATSLamp);
@@ -1237,6 +1265,8 @@
         private System.Windows.Forms.Label label_Car3_Door;
         private System.Windows.Forms.Label label_Car2_Door;
         private System.Windows.Forms.Label label_Car1_Door;
+        private System.Windows.Forms.Label label_TASC_Distance;
+        private System.Windows.Forms.Label label9;
     }
 }
 
