@@ -536,7 +536,7 @@ namespace TrainCrewMoniter
                 if (1.0f > nowSpeed && index > 2) index = 2;
             }
             //非常ブレーキはB6扱い
-            if (index == 8) index = 7;
+            if (index >= 8) index = 7;
 
             return -index;
         }
@@ -630,13 +630,25 @@ namespace TrainCrewMoniter
         /// <returns></returns>
         private float CalcTASCDeceleration(float nowSpeed, float distance)
         {
+            float b = 5.0f;
+            float dist = distance;
+            if (dist < 0.0f) dist = 0.0f;
+
             //減速度演算
-            float b = (float)(Math.Pow(nowSpeed, 2) / (7.2 * distance));
-            if (!gradientAverage.IsZero()) b -= (gradientAverage / K);
+            try
+            {
+                b = (float)(Math.Pow(nowSpeed, 2) / (7.2 * dist));
 
-            if (nowSpeed.IsZero()) b = 0.0f;
-            if (b < 0f) b = 0.0f;
+                if (!gradientAverage.IsZero()) b -= (gradientAverage / K);
 
+                if (nowSpeed.IsZero()) b = 5.0f;
+                if (b < 0.0f) b = 5.0f;
+                if (b > 5.0f) b = 5.0f;
+            }
+            catch
+            {
+                b = 5.0f;
+            }
             return b;
         }
         /// <summary>
@@ -648,13 +660,24 @@ namespace TrainCrewMoniter
         /// <returns></returns>
         private float CalcTASCDeceleration(float nowSpeed, float targetSpeed, float distance)
         {
+            float b = 5.0f;
+            float dist = distance;
+            if (dist < 0.0f) dist = 0.0f;
+
             //減速度演算
-            float b = (float)((Math.Pow(nowSpeed, 2) - Math.Pow(targetSpeed, 2)) / (7.2 * distance));
-            if (!gradientAverage.IsZero()) b -= (gradientAverage / K);
+            try
+            {
+                b = (float)((Math.Pow(nowSpeed, 2) - Math.Pow(targetSpeed, 2)) / (7.2 * dist));
+                if (!gradientAverage.IsZero()) b -= (gradientAverage / K);
 
-            if (nowSpeed.IsZero()) b = 0.0f;
-            if (b < 0f) b = 0.0f;
-
+                if (nowSpeed.IsZero()) b = 5.0f;
+                if (b < 0.0f) b = 5.0f;
+                if (b > 5.0f) b = 5.0f;
+            }
+            catch
+            {
+                b = 5.0f;
+            }
             return b;
         }
 
@@ -685,10 +708,12 @@ namespace TrainCrewMoniter
         private float CalcTASCAverageGradient(XElement element, int carLength, string station, float distance)
         {
             float average = 0.0f;
+            float dist = distance;
+            if (dist < 0.0f) dist = 0.0f;
 
             var str = element.Elements("Value")
                 .Where(s => s.Element("StationName").Value == station)
-                .Where(s => float.Parse(s.Element("Distance").Value) < (distance + (carLength * 20.0f)))
+                .Where(s => float.Parse(s.Element("Distance").Value) < (dist + (carLength * 20.0f)))
                 .Select(s => float.Parse(s.Element("Gradient").Value));
 
             if (str != null && str.Any()) average = str.Average();
