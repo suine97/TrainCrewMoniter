@@ -593,6 +593,7 @@ namespace TrainCrewMoniter
             float dist = distance - offset;
             float dec = deceleration;
             float time = freeRunningTime[(int)trainModel];
+            if (dist < 0.0f) dist = 0.0f;
             if (!gradientAverage.IsZero()) dec += (gradientAverage / K);
 
             //停車パターン演算
@@ -612,6 +613,7 @@ namespace TrainCrewMoniter
             float dist = distance;
             float dec = deceleration;
             float time = freeRunningTime[(int)trainModel];
+            if (dist < 0.0f) dist = 0.0f;
             if (!gradientAverage.IsZero()) dec += (gradientAverage / K);
 
             //軽減パターン演算
