@@ -28,6 +28,11 @@ namespace TrainCrewMoniter
         private readonly float stoppingReductionDeceleration = 2.0f;
 
         /// <summary>
+        /// 速度制限パターン用減速度
+        /// </summary>
+        private readonly float limitSpeedDeceleration = 2.5f;
+
+        /// <summary>
         /// 停車パターン
         /// </summary>
         private float stoppingPattern = 0.0f;
@@ -122,9 +127,29 @@ namespace TrainCrewMoniter
 
         /// <summary>
         /// TASC 残り距離判定フェーズ
-        /// [制動待機, 600, 500, 400, 300, 200, 100, 50, 25]
+        /// [制御待機, 600, 500, 400, 300, 200, 100, 50, 25]
         /// </summary>
-        private string sTASCDistancePhase = "制動待機";
+        private string sTASCDistancePhase = "制御待機";
+
+        /// <summary>
+        /// TASC 一時保存用動作フェーズ
+        /// </summary>
+        private string strTASCPhase = "解除";
+
+        /// <summary>
+        /// TASC 一時保存用目標制限速度
+        /// </summary>
+        private float strTargetLimitSpeed = 0.0f;
+
+        /// <summary>
+        /// TASC 一時保存用目標制限距離
+        /// </summary>
+        private float strTargetLimitDistance = 0.0f;
+
+        /// <summary>
+        /// TASC 駅停車判定
+        /// </summary>
+        private bool IsTASCStoppedStation = false;
 
         /// <summary>
         /// TASC 有効判定
@@ -143,7 +168,7 @@ namespace TrainCrewMoniter
 
         /// <summary>
         /// TASC 動作フェーズ
-        /// [制動待機, 制動中, 制動中, 停車, 解除]
+        /// [制御待機, 停車制御, 停車制御(低減), 速度制御, 停車, 解除]
         /// </summary>
         public string sTASCPhase = "解除";
 
@@ -151,6 +176,11 @@ namespace TrainCrewMoniter
         /// TASC 停車演算パターン(km/h)
         /// </summary>
         public float fTASCPatternSpeed = 0.0f;
+
+        /// <summary>
+        /// TASC 速度制限演算パターン(km/h)
+        /// </summary>
+        public float fTASCLimitPatternSpeed = 0.0f;
 
         /// <summary>
         /// TASC 演算減速度(km/h/s)
@@ -190,7 +220,7 @@ namespace TrainCrewMoniter
         /// <summary>
         /// 車両形式
         /// </summary>
-        public TrainModel trainModel= TrainModel.None;
+        public TrainModel trainModel = TrainModel.None;
 
         /// <summary>
         /// データクラス
@@ -206,6 +236,11 @@ namespace TrainCrewMoniter
         /// 電磁直通ブレーキ車判定
         /// </summary>
         public bool IsSMEEBrake = false;
+
+        /// <summary>
+        /// SAP圧リセット判定
+        /// </summary>
+        public bool IsSAPReset = false;
 
         /// <summary>
         /// 車両形式
@@ -230,16 +265,22 @@ namespace TrainCrewMoniter
         public TASC()
         {
             sTASCPhase = "停車";
+            strTASCPhase = "停車";
             IsTASCEnable = true;
             IsTASCOperation = false;
             IsTASCBraking = false;
-            fTASCPatternSpeed = 120f;
-            fTASCDeceleration = 0f;
+            IsTASCStoppedStation = true;
+            fTASCPatternSpeed = 120.0f;
+            fTASCLimitPatternSpeed = 120.0f;
+            fTASCDeceleration = 0.0f;
             iTASCNotch = 0;
             fTASCSAPPressure = 0.0f;
+            strTargetLimitSpeed = 0.0f;
+            strTargetLimitDistance = 0.0f;
             trainModel = TrainModel.None;
             IsTwoHandle = false;
             IsSMEEBrake = false;
+            IsSAPReset = false;
 
             //xmlファイル読み込み
             UpSideGradient = XElement.Load(@"Xml\UpSideGradient.xml");
@@ -258,76 +299,79 @@ namespace TrainCrewMoniter
             float dist = remainigDistance > 0.0f ? remainigDistance : 0.0f;
 
             //車両形式判定
-            if (trainModel == TrainModel.None)
+            switch (state.CarStates[0].CarModel)
             {
-                switch (state.CarStates[0].CarModel)
-                {
-                    case "5320":
-                        trainModel = TrainModel.series5320;
-                        IsTwoHandle = false;
-                        IsSMEEBrake = false;
-                        break;
-                    case "5300":
-                        trainModel = TrainModel.series5300;
-                        IsTwoHandle = false;
-                        IsSMEEBrake = false;
-                        break;
-                    case "4300":
-                        trainModel = TrainModel.series4300;
-                        IsTwoHandle = false;
-                        IsSMEEBrake = false;
-                        break;
-                    case "4000":
-                        trainModel = TrainModel.series4000;
-                        IsTwoHandle = true;
-                        IsSMEEBrake = false;
-                        break;
-                    case "50000":
-                        trainModel = TrainModel.series50000;
-                        IsTwoHandle = false;
-                        IsSMEEBrake = false;
-                        break;
-                    case "4321":
-                        trainModel = TrainModel.Car4321F;
-                        IsTwoHandle = false;
-                        IsSMEEBrake = false;
-                        break;
-                    case "4000R":
-                        trainModel = TrainModel.Car4000R;
-                        IsTwoHandle = true;
-                        IsSMEEBrake = false;
-                        break;
-                    case "3300V":
-                        trainModel = TrainModel.Car3300V;
-                        IsTwoHandle = false;
-                        IsSMEEBrake = false;
-                        break;
-                    case "3020":
-                        trainModel = TrainModel.series3020;
-                        IsTwoHandle = true;
-                        IsSMEEBrake = true;
-                        break;
-                    default:
-                        trainModel = TrainModel.series5320;
-                        IsTwoHandle = false;
-                        IsSMEEBrake = false;
-                        break;
-                }
+                case "5320":
+                    trainModel = TrainModel.series5320;
+                    IsTwoHandle = false;
+                    IsSMEEBrake = false;
+                    break;
+                case "5300":
+                    trainModel = TrainModel.series5300;
+                    IsTwoHandle = false;
+                    IsSMEEBrake = false;
+                    break;
+                case "4300":
+                    trainModel = TrainModel.series4300;
+                    IsTwoHandle = false;
+                    IsSMEEBrake = false;
+                    break;
+                case "4000":
+                    trainModel = TrainModel.series4000;
+                    IsTwoHandle = true;
+                    IsSMEEBrake = false;
+                    break;
+                case "50000":
+                    trainModel = TrainModel.series50000;
+                    IsTwoHandle = false;
+                    IsSMEEBrake = false;
+                    break;
+                case "4321":
+                    trainModel = TrainModel.Car4321F;
+                    IsTwoHandle = false;
+                    IsSMEEBrake = false;
+                    break;
+                case "4000R":
+                    trainModel = TrainModel.Car4000R;
+                    IsTwoHandle = true;
+                    IsSMEEBrake = false;
+                    break;
+                case "3300V":
+                    trainModel = TrainModel.Car3300V;
+                    IsTwoHandle = false;
+                    IsSMEEBrake = false;
+                    break;
+                case "3020":
+                    trainModel = TrainModel.series3020;
+                    IsTwoHandle = true;
+                    IsSMEEBrake = true;
+                    break;
+                default:
+                    trainModel = TrainModel.series5320;
+                    IsTwoHandle = false;
+                    IsSMEEBrake = false;
+                    break;
             }
 
             //TASC有効判定
             if (!IsTASCEnable)
             {
                 fTASCPatternSpeed = 120.0f;
+                fTASCLimitPatternSpeed = 120.0f;
                 fTASCDeceleration = 0.0f;
                 gradientAverage = 0.0f;
                 stoppingPattern = 0.0f;
                 stoppingReductionPattern = 0.0f;
                 standbyBreakingDistance = 700.0f;
-                sTASCDistancePhase = "制動待機";
+                strTargetLimitSpeed = 0.0f;
+                strTargetLimitDistance = 0.0f;
+                sTASCDistancePhase = "制御待機";
                 sTASCPhase = "解除";
+                strTASCPhase = "解除";
                 IsTASCOperation = false;
                 IsTASCBraking = false;
+                IsTASCStoppedStation = false;
+                IsSAPReset = false;
                 return;
             }
 
@@ -343,7 +387,7 @@ namespace TrainCrewMoniter
             {
                 var distancePhases = new Dictionary<string, float>
                 {
-                    { "制動待機", 1000.0f },
+                    { "制御待機", 1000.0f },
                     { "1000", 900.0f },
                     { "900", 800.0f },
                     { "800", 700.0f },
@@ -373,11 +417,39 @@ namespace TrainCrewMoniter
                 }
                 else if (sTASCDistancePhase == "25" && sTASCPhase == "停車")
                 {
-                    sTASCDistancePhase = "制動待機";
+                    sTASCDistancePhase = "制御待機";
                 }
             }
 
-            //TASCパターン演算
+            //駅停車判定(停止位置範囲内かつ速度が0km/h、ドア開(乗降駅のみ)になったら停車判定)
+            if (state.stationList[state.nowStaIndex].stopType == StopType.StopForPassenger && Math.Abs(remainigDistance) <= stopRange && speed.IsZero() && !state.AllClose)
+                IsTASCStoppedStation = true;
+            else if (state.stationList[state.nowStaIndex].stopType == StopType.StopForOperation && Math.Abs(remainigDistance) <= stopRange && speed.IsZero())
+                IsTASCStoppedStation = true;
+            else
+                IsTASCStoppedStation = false;
+
+            //TASC速度制限パターン演算
+            if (state.nextSpeedLimit > 0.0f)
+            {
+                strTargetLimitSpeed = state.nextSpeedLimit;
+                strTargetLimitDistance = (state.nextSpeedLimitDistance > 0.0f) ? state.nextSpeedLimitDistance : 0.0f;
+
+                float calcLimitSpeedPattern = CalcTASCLimitSpeedPattern(strTargetLimitSpeed, strTargetLimitDistance, limitSpeedDeceleration);
+                if (calcLimitSpeedPattern > strTargetLimitSpeed)
+                    fTASCLimitPatternSpeed = calcLimitSpeedPattern;
+                else
+                    fTASCLimitPatternSpeed = strTargetLimitSpeed;
+            }
+            else
+            {
+                strTargetLimitSpeed = state.speedLimit + 5.0f;
+                strTargetLimitDistance = 0.0f;
+
+                fTASCLimitPatternSpeed = strTargetLimitSpeed;
+            }
+
+            //TASC停車パターン演算
             if (stopType.Contains("停車") && remainigDistance < standbyBreakingDistance)
             {
                 if (TrainCrewInput.gameState.driveMode == DriveMode.RTA)
@@ -398,38 +470,56 @@ namespace TrainCrewMoniter
                 gradientAverage = 0.0f;
                 stoppingPattern = 0.0f;
                 stoppingReductionPattern = 0.0f;
-                sTASCDistancePhase = "制動待機";
+                sTASCDistancePhase = "制御待機";
             }
 
             //出力ノッチ演算
             switch (sTASCPhase)
             {
                 case "解除":
-                    //次駅停車かつ残り距離が制動待機距離を下回ったら制動待機
-                    if (stopType.Contains("停車") && remainigDistance < standbyBreakingDistance)
+                    //現在速度が速度制限パターンを超えたら速度制御開始
+                    if (fTASCLimitPatternSpeed < speed)
                     {
-                        sTASCPhase = "制動待機";
+                        strTASCPhase = sTASCPhase;
+                        sTASCPhase = "速度制御";
+                    }
+                    //次駅停車かつ残り距離が制動待機距離を下回ったら制御待機
+                    else if (stopType.Contains("停車") && remainigDistance < standbyBreakingDistance)
+                    {
+                        sTASCPhase = "制御待機";
                     }
                     break;
-                case "制動待機":
-                    //現在速度が停車パターンを下回ったら制動開始
-                    if (fTASCPatternSpeed < speed)
+                case "制御待機":
+                    //現在速度が速度制限パターンを超えたら速度制御開始
+                    if (fTASCLimitPatternSpeed < speed)
                     {
-                        sTASCPhase = "制動中";
+                        strTASCPhase = sTASCPhase;
+                        sTASCPhase = "速度制御";
+                    }
+                    //現在速度が停車パターンを越えたら停車制御開始
+                    else if (fTASCPatternSpeed < speed)
+                    {
+                        sTASCPhase = "停車制御";
                     }
                     break;
-                case "制動中":
+                case "停車制御":
+                    //現在速度が速度制限パターンを超えたら速度制御開始
+                    if (fTASCLimitPatternSpeed < speed)
+                    {
+                        strTASCPhase = sTASCPhase;
+                        sTASCPhase = "速度制御";
+                    }
                     //停車軽減パターンに移行したら制動(低減)
-                    if (stoppingReductionPattern >= stoppingPattern)
+                    else if (stoppingReductionPattern >= stoppingPattern)
                     {
-                        sTASCPhase = "制動中(低減)";
+                        sTASCPhase = "停車制御(低減)";
                     }
                     //停止位置範囲外で停車した場合は制動待機へ遷移
                     else if (stopRange <= Math.Abs(remainigDistance) && speed.IsZero())
                     {
                         iTASCNotch = 0;
-                        fTASCSAPPressure = 0.0f;
-                        sTASCPhase = "制動待機";
+                        IsSAPReset = true;
+                        sTASCPhase = "制御待機";
                     }
                     else
                     {
@@ -437,30 +527,50 @@ namespace TrainCrewMoniter
                         fTASCSAPPressure = CalcTASCSAP(speed, dist);
                     }
                     break;
-                case "制動中(低減)":
-                    //停止位置範囲内かつ速度が0km/h、ドア開になったら停車判定
-                    if (Math.Abs(remainigDistance) <= stopRange && speed.IsZero() && !state.AllClose)
+                case "停車制御(低減)":
+                    //現在速度が速度制限パターンを超えたら速度制御開始
+                    if (fTASCLimitPatternSpeed < speed)
+                    {
+                        strTASCPhase = sTASCPhase;
+                        sTASCPhase = "速度制御";
+                    }
+                    //停止位置範囲内かつ速度が0km/h、ドア開(乗降駅のみ)になったら停車判定
+                    else if (IsTASCStoppedStation)
                     {
                         //ツーハンドル車は別処理
                         if (IsTwoHandle)
                             iTASCNotch = -4;
                         else
                             iTASCNotch = -5;
-
-                        fTASCSAPPressure = 0.0f;
-
+                        IsSAPReset = true;
                         sTASCPhase = "停車";
                     }
                     //停止位置範囲外で停車した場合は制動待機へ遷移
                     else if (stopRange <= Math.Abs(remainigDistance) && speed.IsZero())
                     {
                         iTASCNotch = 0;
-                        sTASCPhase = "制動待機";
+                        IsSAPReset = true;
+                        sTASCPhase = "制御待機";
                     }
                     else
                     {
                         iTASCNotch = CalcTASCNotch(speed, dist);
                         fTASCSAPPressure = CalcTASCSAP(speed, dist);
+                    }
+                    break;
+                case "速度制御":
+                    //現在速度が速度制限パターンを下回ったら解除
+                    if (fTASCLimitPatternSpeed >= speed)
+                    {
+                        iTASCNotch = 0;
+                        IsSAPReset = true;
+                        sTASCPhase = strTASCPhase;
+                        strTASCPhase = "解除";
+                    }
+                    else
+                    {
+                        iTASCNotch = CalcTASCLimitSpeedNotch(speed, strTargetLimitSpeed, strTargetLimitDistance);
+                        fTASCSAPPressure = CalcTASCLimitSpeedSAP(speed, strTargetLimitSpeed, strTargetLimitDistance);
                     }
                     break;
                 case "停車":
@@ -470,6 +580,7 @@ namespace TrainCrewMoniter
                         iTASCNotch = 0;
                         fTASCSAPPressure = 0.0f;
                         sTASCPhase = "解除";
+                        strTASCPhase = "解除";
                     }
                     break;
                 default:
@@ -478,11 +589,11 @@ namespace TrainCrewMoniter
 
             //TASC動作判定更新
             IsTASCOperation = !sTASCPhase.Contains("解除");
-            IsTASCBraking = sTASCPhase.Contains("制動中");
+            IsTASCBraking = sTASCPhase.Contains("停車制御") || sTASCPhase.Contains("速度制御");
         }
 
         /// <summary>
-        /// TASC 出力ノッチ演算メソッド
+        /// TASC 停車用出力ノッチ演算メソッド
         /// </summary>
         /// <param name="nowSpeed">現在速度[km/h]</param>
         /// <param name="distance">停止位置までの残り距離[m]</param>
@@ -542,7 +653,54 @@ namespace TrainCrewMoniter
         }
 
         /// <summary>
-        /// TASC 出力SAP圧力演算メソッド
+        /// TASC 速度制限用出力ノッチ演算メソッド
+        /// </summary>
+        /// <param name="nowSpeed">現在速度[km/h]</param>
+        /// <param name="limitSpeed">制限速度[km/h]</param>
+        /// <param name="distance">制限速度までの残り距離[m]</param>
+        /// <returns></returns>
+        private int CalcTASCLimitSpeedNotch(float nowSpeed, float  limitSpeed, float distance)
+        {
+            float dist = distance;
+
+            //勾配値算出
+            float gradientDec = gradientAverage.IsZero() ? 0.0f : (gradientAverage / K);
+
+            //減速度[km/h/s]に変換した配列を生成
+            float[] strCoinstDeceration = constDeceleration[(int)trainModel];
+            List<float> notchDist = strCoinstDeceration.Select(i => i * maxDeceleration[(int)trainModel] + gradientDec).ToList();
+
+            //現在速度における制限速度までの減速度算出
+            fTASCDeceleration = CalcTASCDeceleration(nowSpeed, limitSpeed, dist);
+
+            //演算減速度に最も近い段数のインデックスを出力
+            int index = data.FindClosestIndex(notchDist, fTASCDeceleration);
+
+            //TASC演算速度との差が大きければ出力ノッチを+1
+            if ((fTASCLimitPatternSpeed + 2.0f) < nowSpeed)
+            {
+                index++;
+            }
+
+            //ツーハンドル車は別処理
+            if (IsTwoHandle)
+            {
+                //B1以下は出力しない
+                if (index == 0) index = 1;
+            }
+            else
+            {
+                //B1以下は出力しない
+                if (index == 1 || index == 0) index = 2;
+            }
+            //非常ブレーキはB6扱い
+            if (index >= 8) index = 7;
+
+            return -index;
+        }
+
+        /// <summary>
+        /// TASC 停車用出力SAP圧力演算メソッド
         /// </summary>
         /// <param name="nowSpeed">現在速度[km/h]</param>
         /// <param name="distance">停止位置までの残り距離[m]</param>
@@ -552,9 +710,6 @@ namespace TrainCrewMoniter
             //距離オフセット設定
             float dist = distance;
             if (stoppingPattern > stoppingReductionPattern) dist = distance - offset;
-
-            //勾配値算出
-            float gradientDec = gradientAverage.IsZero() ? 0.0f : (gradientAverage / K);
 
             //最大減速度[km/h/s]を取得
             float strMaxDeceration = maxDeceleration[(int)trainModel];
@@ -576,6 +731,37 @@ namespace TrainCrewMoniter
             if (2.5f > nowSpeed && fPressure > 100.0f) fPressure = 100.0f;
             //停止時に50kPaへ移行
             if (1.0f > nowSpeed && fPressure > 50.0f) fPressure = 50.0f;
+            //非常ブレーキは最大圧力扱い
+            if (fPressure > strMaxPressure) fPressure = strMaxPressure;
+
+            return fPressure;
+        }
+
+        /// <summary>
+        /// TASC 速度制限用出力SAP圧力演算メソッド
+        /// </summary>
+        /// <param name="nowSpeed">現在速度[km/h]</param>
+        /// <param name="limitSpeed">制限速度[km/h]</param>
+        /// <param name="distance">制限速度までの残り距離[m]</param>
+        /// <returns></returns>
+        private float CalcTASCLimitSpeedSAP(float nowSpeed, float limitSpeed, float distance)
+        {
+            float dist = distance;
+
+            //最大減速度[km/h/s]を取得
+            float strMaxDeceration = maxDeceleration[(int)trainModel];
+
+            //最大SAP圧力値[kPa]を取得
+            float strMaxPressure = maxPressure[(int)trainModel];
+
+            //現在速度における制限速度までの減速度算出
+            fTASCDeceleration = CalcTASCDeceleration(nowSpeed, limitSpeed, dist);
+
+            //減速度からSAP圧力値を算出
+            float fPressure = (fTASCDeceleration / strMaxDeceration) * strMaxPressure;
+
+            //50kPa以下は出力しない
+            if (fPressure <= 50.0f) fPressure = 50.0f;
             //非常ブレーキは最大圧力扱い
             if (fPressure > strMaxPressure) fPressure = strMaxPressure;
 
@@ -618,6 +804,29 @@ namespace TrainCrewMoniter
 
             //軽減パターン演算
             float v = (-2.0f * dec * time + (float)Math.Sqrt((float)Math.Pow(2.0f * dec * time, 2) - 4 * (-7.2 * dec * dist))) / 2;
+
+            return v;
+        }
+
+        /// <summary>
+        /// TASC 速度制限パターン演算メソッド
+        /// </summary>
+        /// <param name="limitSpeed">制限速度[km/h]</param>
+        /// <param name="distance">制限速度までの残り距離[m]</param>
+        /// <param name="deceleration">パターン減速度[km/h/s]</param>
+        /// <returns></returns>
+        private float CalcTASCLimitSpeedPattern(float limitSpeed, float distance, float deceleration)
+        {
+            float dist = distance - offset;
+            float dec = deceleration;
+            float time = freeRunningTime[(int)trainModel];
+            if (dist < 0.0f) dist = 0.0f;
+            if (!gradientAverage.IsZero()) dec += (gradientAverage / K);
+
+            //速度制限パターン演算
+            float v = -time * dec + (float)Math.Sqrt((float)Math.Pow(time, 2) * (float)Math.Pow(dec, 2) + (float)Math.Pow(limitSpeed, 2) + 7.2f * dec * dist);
+            
+            if (v < limitSpeed) v = limitSpeed;
 
             return v;
         }

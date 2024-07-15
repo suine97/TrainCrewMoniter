@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using TrainCrew;
 
@@ -109,7 +108,8 @@ namespace TrainCrewMoniter
         private void Timer_Tick(object sender, EventArgs e)
         {
             var state = TrainCrewInput.GetTrainState();
-            if (state == null || state.CarStates.Count == 0) { return; }
+            TrainCrewInput.RequestStaData();
+            if (state == null || state.CarStates.Count == 0 || state.stationList.Count == 0) { return; }
 
             //運転画面遷移なら処理
             if (TrainCrewInput.gameState.gameScreen == GameScreen.MainGame
@@ -293,28 +293,30 @@ namespace TrainCrewMoniter
                         cAmpere[0].ForeColor = Color.Black;
                 }
 
-                //TASC情報[TASC状態]
+                //TASC情報[TASC 状態]
                 label_TASC_State.Text = tasc.sTASCPhase;
-                //TASC情報[TASC速度]
+                //TASC情報[TASC 停車P]
                 if (state.Speed < 2.5f)
                     label_TASC_Speed.Text = "0.00km/h";
                 else
                     label_TASC_Speed.Text = tasc.fTASCPatternSpeed.ToString("F2") + "km/h";
-                //TASC情報[TASC減速度]
+                //TASC情報[TASC 制限P]
+                label_TASC_LimitSpeed.Text = tasc.fTASCLimitPatternSpeed.ToString("F2") + "km/h";
+                //TASC情報[TASC 減速度]
                 if (state.Speed < 2.5f)
                     label_TASC_Deceleration.Text = "0.00km/h/s";
                 else
                     label_TASC_Deceleration.Text = tasc.fTASCDeceleration.ToString("F2") + "km/h/s";
                 //TASC情報[TASC SAP圧]
                 label_TASC_SAPPressure.Text = tasc.fTASCSAPPressure.ToString("F2") + "kPa";
-                //TASC情報[TASC段数]
+                //TASC情報[TASC B段数]
                 if (tasc.IsTwoHandle)
                     label_TASC_Notch.Text = "B" + (tasc.iTASCNotch == 0 ? 0 : -tasc.iTASCNotch);
                 else
                     label_TASC_Notch.Text = "B" + (tasc.iTASCNotch == 0 ? 0 : -(tasc.iTASCNotch + 1));
-                //TASC情報[TASC勾配値]
+                //TASC情報[TASC 勾配値]
                 label_TASC_Gradient.Text = tasc.gradientAverage.ToString("F2") + "‰";
-                //TASC情報[TASC開始距離]
+                //TASC情報[TASC 開始距離]
                 label_TASC_Distance.Text = tasc.standbyBreakingDistance.ToString("F2") + "m";
 
                 //TASCノッチ出力処理
@@ -323,6 +325,13 @@ namespace TrainCrewMoniter
                     if (!tasc.IsTASCEnable && tasc.fTASCSAPPressure > 0.0f)
                     {
                         //SAP圧初期化
+                        tasc.fTASCSAPPressure = 0.0f;
+                        TrainCrewInput.SetBrakeSAP(tasc.fTASCSAPPressure);
+                    }
+                    else if (tasc.IsTASCEnable && tasc.IsSAPReset)
+                    {
+                        //SAP圧初期化
+                        tasc.IsSAPReset = false;
                         tasc.fTASCSAPPressure = 0.0f;
                         TrainCrewInput.SetBrakeSAP(tasc.fTASCSAPPressure);
                     }
@@ -417,24 +426,28 @@ namespace TrainCrewMoniter
                 //車両[電流]
                 InitializeLabelCarAmpere();
 
-                //TASC情報[TASC状態]
+                //TASC情報[TASC 状態]
                 label_TASC_State.Text = "制動待機";
-                //TASC情報[TASC速度]
+                //TASC情報[TASC 停車P]
                 label_TASC_Speed.Text = "0.00km/h";
-                //TASC情報[TASC減速度]
+                //TASC情報[TASC 制限P]
+                label_TASC_LimitSpeed.Text = "0.00km/h";
+                //TASC情報[TASC 減速度]
                 label_TASC_Deceleration.Text = "0.00km/h/s";
                 //TASC情報[TASC SAP圧]
                 label_TASC_SAPPressure.Text = "0.00kPa";
-                //TASC情報[TASC段数]
+                //TASC情報[TASC B段数]
                 label_TASC_Notch.Text = "B0";
-                //TASC情報[TASC勾配値]
+                //TASC情報[TASC 勾配値]
                 label_TASC_Gradient.Text = "0.00‰";
-                //TASC情報[TASC開始距離]
+                //TASC情報[TASC 開始距離]
                 label_TASC_Distance.Text = "0.00m";
                 //TASC変数
-                tasc.fTASCPatternSpeed = 120f;
-                tasc.fTASCDeceleration = 0f;
+                tasc.fTASCPatternSpeed = 120.0f;
+                tasc.fTASCLimitPatternSpeed = 120.0f;
+                tasc.fTASCDeceleration = 0.0f;
                 tasc.iTASCNotch = 0;
+                tasc.trainModel = TASC.TrainModel.None;
 
                 ResumeLayout();
             }
