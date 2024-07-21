@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Reflection.Emit;
 using System.Windows.Forms;
 using TrainCrew;
 
@@ -109,6 +110,7 @@ namespace TrainCrewMoniter
         {
             var state = TrainCrewInput.GetTrainState();
             TrainCrewInput.RequestStaData();
+            TrainCrewInput.RequestData(DataRequest.Signal);
             if (state == null || state.CarStates.Count == 0 || state.stationList.Count == 0) { return; }
 
             //運転画面遷移なら処理
@@ -118,9 +120,13 @@ namespace TrainCrewMoniter
             {
                 SuspendLayout();
 
+                //信号機情報取得
+                var strSignal = TrainCrewInput.signals;
+                var signalName = (strSignal.Count > 0) ? strSignal[0].name : "None";
+
                 //TASC演算
                 tasc.IsTASCEnable = check_TASCEnable.Checked;
-                tasc.TASC_Update(state);
+                tasc.TASC_Update(state, signalName);
 
                 //列車番号
                 label_CarInfo_DiaName.Text = state.diaName;
@@ -490,13 +496,45 @@ namespace TrainCrewMoniter
         }
 
         /// <summary>
-        /// check_TopMost_CheckedChangedイベント
+        /// Check_TopMost_CheckedChangedイベント
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void Check_TopMost_CheckedChanged(object sender, EventArgs e)
         {
             this.TopMost = check_TopMost.Checked;
+        }
+
+        /// <summary>
+        /// Check_TASCEnable_CheckedChangedイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Check_TASCEnable_CheckedChanged(object sender, EventArgs e)
+        {
+            if (check_TASCEnable.Checked)
+            {
+                radio_TASC_High.Enabled = true;
+                radio_TASC_Normal.Enabled = true;
+                radio_TASC_Low.Enabled = true;
+            }
+            else
+            {
+                radio_TASC_High.Enabled = false;
+                radio_TASC_Normal.Enabled = false;
+                radio_TASC_Low.Enabled = false;
+            }
+        }
+
+        /// <summary>
+        /// Radio_TASC_CheckedChangedイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Radio_TASC_CheckedChanged(object sender, EventArgs e)
+        {
+            RadioButton btn = (RadioButton)sender;
+            tasc.sTASCPatternMode = btn.Text;
         }
     }
 }

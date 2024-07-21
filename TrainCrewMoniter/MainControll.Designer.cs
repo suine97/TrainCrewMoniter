@@ -33,6 +33,8 @@
             this.label_ATSLamp_Speed = new System.Windows.Forms.Label();
             this.label_ATSLamp_Class = new System.Windows.Forms.Label();
             this.group_Laｍp = new System.Windows.Forms.GroupBox();
+            this.label_Lamp_SIVFailure = new System.Windows.Forms.Label();
+            this.label_Lamp_DeadMan = new System.Windows.Forms.Label();
             this.label_Lamp_ATSNormal = new System.Windows.Forms.Label();
             this.label_Lamp_TASCBrake = new System.Windows.Forms.Label();
             this.label_Lamp_TASCOperation = new System.Windows.Forms.Label();
@@ -44,10 +46,11 @@
             this.label_Lamp_ATSOperation = new System.Windows.Forms.Label();
             this.label_Lamp_Door = new System.Windows.Forms.Label();
             this.group_CarInfo = new System.Windows.Forms.GroupBox();
-            this.label_TASC_LimitSpeed = new System.Windows.Forms.Label();
             this.check_TASCEnable = new System.Windows.Forms.CheckBox();
             this.check_TopMost = new System.Windows.Forms.CheckBox();
             this.group_TASC = new System.Windows.Forms.GroupBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label_TASC_LimitSpeed = new System.Windows.Forms.Label();
             this.label_TASC_Distance = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.label_TASC_Gradient = new System.Windows.Forms.Label();
@@ -110,9 +113,11 @@
             this.label20 = new System.Windows.Forms.Label();
             this.label_Car1_BCPress = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label_Lamp_DeadMan = new System.Windows.Forms.Label();
-            this.label_Lamp_SIVFailure = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.radio_TASC_High = new System.Windows.Forms.RadioButton();
+            this.radio_TASC_Normal = new System.Windows.Forms.RadioButton();
+            this.radio_TASC_Low = new System.Windows.Forms.RadioButton();
             this.group_ATSLamp.SuspendLayout();
             this.group_Laｍp.SuspendLayout();
             this.group_CarInfo.SuspendLayout();
@@ -123,6 +128,7 @@
             this.group_Car3.SuspendLayout();
             this.group_Car2.SuspendLayout();
             this.group_Car1.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // group_ATSLamp
@@ -196,6 +202,30 @@
             this.group_Laｍp.TabIndex = 36;
             this.group_Laｍp.TabStop = false;
             this.group_Laｍp.Text = "表示灯";
+            // 
+            // label_Lamp_SIVFailure
+            // 
+            this.label_Lamp_SIVFailure.BackColor = System.Drawing.Color.White;
+            this.label_Lamp_SIVFailure.ForeColor = System.Drawing.Color.LightGray;
+            this.label_Lamp_SIVFailure.Location = new System.Drawing.Point(13, 235);
+            this.label_Lamp_SIVFailure.Margin = new System.Windows.Forms.Padding(10, 3, 10, 3);
+            this.label_Lamp_SIVFailure.Name = "label_Lamp_SIVFailure";
+            this.label_Lamp_SIVFailure.Size = new System.Drawing.Size(80, 15);
+            this.label_Lamp_SIVFailure.TabIndex = 42;
+            this.label_Lamp_SIVFailure.Text = "SIV異常";
+            this.label_Lamp_SIVFailure.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label_Lamp_DeadMan
+            // 
+            this.label_Lamp_DeadMan.BackColor = System.Drawing.Color.White;
+            this.label_Lamp_DeadMan.ForeColor = System.Drawing.Color.LightGray;
+            this.label_Lamp_DeadMan.Location = new System.Drawing.Point(13, 172);
+            this.label_Lamp_DeadMan.Margin = new System.Windows.Forms.Padding(10, 3, 10, 3);
+            this.label_Lamp_DeadMan.Name = "label_Lamp_DeadMan";
+            this.label_Lamp_DeadMan.Size = new System.Drawing.Size(80, 15);
+            this.label_Lamp_DeadMan.TabIndex = 41;
+            this.label_Lamp_DeadMan.Text = "デッドマン";
+            this.label_Lamp_DeadMan.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // label_Lamp_ATSNormal
             // 
@@ -319,6 +349,8 @@
             // 
             // group_CarInfo
             // 
+            this.group_CarInfo.Controls.Add(this.panel1);
+            this.group_CarInfo.Controls.Add(this.label12);
             this.group_CarInfo.Controls.Add(this.check_TASCEnable);
             this.group_CarInfo.Controls.Add(this.check_TopMost);
             this.group_CarInfo.Controls.Add(this.group_TASC);
@@ -348,19 +380,6 @@
             this.group_CarInfo.TabStop = false;
             this.group_CarInfo.Text = "車両情報";
             // 
-            // label_TASC_LimitSpeed
-            // 
-            this.label_TASC_LimitSpeed.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_TASC_LimitSpeed.BackColor = System.Drawing.SystemColors.Control;
-            this.label_TASC_LimitSpeed.ForeColor = System.Drawing.Color.Black;
-            this.label_TASC_LimitSpeed.Location = new System.Drawing.Point(104, 69);
-            this.label_TASC_LimitSpeed.Margin = new System.Windows.Forms.Padding(20, 10, 10, 5);
-            this.label_TASC_LimitSpeed.Name = "label_TASC_LimitSpeed";
-            this.label_TASC_LimitSpeed.Size = new System.Drawing.Size(90, 12);
-            this.label_TASC_LimitSpeed.TabIndex = 43;
-            this.label_TASC_LimitSpeed.Text = "0.00km/h";
-            this.label_TASC_LimitSpeed.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
             // check_TASCEnable
             // 
             this.check_TASCEnable.Checked = true;
@@ -372,6 +391,7 @@
             this.check_TASCEnable.TabIndex = 42;
             this.check_TASCEnable.Text = "TASC有効";
             this.check_TASCEnable.UseVisualStyleBackColor = true;
+            this.check_TASCEnable.CheckedChanged += new System.EventHandler(this.Check_TASCEnable_CheckedChanged);
             // 
             // check_TopMost
             // 
@@ -411,6 +431,30 @@
             this.group_TASC.TabIndex = 39;
             this.group_TASC.TabStop = false;
             this.group_TASC.Text = "TASC情報";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.ForeColor = System.Drawing.Color.Black;
+            this.label7.Location = new System.Drawing.Point(13, 69);
+            this.label7.Margin = new System.Windows.Forms.Padding(10, 5, 10, 5);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(76, 12);
+            this.label7.TabIndex = 44;
+            this.label7.Text = "TASC 制限P：";
+            // 
+            // label_TASC_LimitSpeed
+            // 
+            this.label_TASC_LimitSpeed.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_TASC_LimitSpeed.BackColor = System.Drawing.SystemColors.Control;
+            this.label_TASC_LimitSpeed.ForeColor = System.Drawing.Color.Black;
+            this.label_TASC_LimitSpeed.Location = new System.Drawing.Point(104, 69);
+            this.label_TASC_LimitSpeed.Margin = new System.Windows.Forms.Padding(20, 10, 10, 5);
+            this.label_TASC_LimitSpeed.Name = "label_TASC_LimitSpeed";
+            this.label_TASC_LimitSpeed.Size = new System.Drawing.Size(90, 12);
+            this.label_TASC_LimitSpeed.TabIndex = 43;
+            this.label_TASC_LimitSpeed.Text = "0.00km/h";
+            this.label_TASC_LimitSpeed.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // label_TASC_Distance
             // 
@@ -1174,40 +1218,62 @@
             this.label18.TabIndex = 14;
             this.label18.Text = "BC圧：";
             // 
-            // label7
+            // label12
             // 
-            this.label7.AutoSize = true;
-            this.label7.ForeColor = System.Drawing.Color.Black;
-            this.label7.Location = new System.Drawing.Point(13, 69);
-            this.label7.Margin = new System.Windows.Forms.Padding(10, 5, 10, 5);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(76, 12);
-            this.label7.TabIndex = 44;
-            this.label7.Text = "TASC 制限P：";
+            this.label12.AutoSize = true;
+            this.label12.ForeColor = System.Drawing.Color.Black;
+            this.label12.Location = new System.Drawing.Point(26, 165);
+            this.label12.Margin = new System.Windows.Forms.Padding(10, 5, 10, 5);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(40, 12);
+            this.label12.TabIndex = 46;
+            this.label12.Text = "MR圧：";
             // 
-            // label_Lamp_DeadMan
+            // panel1
             // 
-            this.label_Lamp_DeadMan.BackColor = System.Drawing.Color.White;
-            this.label_Lamp_DeadMan.ForeColor = System.Drawing.Color.LightGray;
-            this.label_Lamp_DeadMan.Location = new System.Drawing.Point(13, 172);
-            this.label_Lamp_DeadMan.Margin = new System.Windows.Forms.Padding(10, 3, 10, 3);
-            this.label_Lamp_DeadMan.Name = "label_Lamp_DeadMan";
-            this.label_Lamp_DeadMan.Size = new System.Drawing.Size(80, 15);
-            this.label_Lamp_DeadMan.TabIndex = 41;
-            this.label_Lamp_DeadMan.Text = "デッドマン";
-            this.label_Lamp_DeadMan.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.panel1.Controls.Add(this.radio_TASC_High);
+            this.panel1.Controls.Add(this.radio_TASC_Normal);
+            this.panel1.Controls.Add(this.radio_TASC_Low);
+            this.panel1.Location = new System.Drawing.Point(171, 60);
+            this.panel1.Margin = new System.Windows.Forms.Padding(0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(76, 64);
+            this.panel1.TabIndex = 53;
             // 
-            // label_Lamp_SIVFailure
+            // radio_TASC_High
             // 
-            this.label_Lamp_SIVFailure.BackColor = System.Drawing.Color.White;
-            this.label_Lamp_SIVFailure.ForeColor = System.Drawing.Color.LightGray;
-            this.label_Lamp_SIVFailure.Location = new System.Drawing.Point(13, 235);
-            this.label_Lamp_SIVFailure.Margin = new System.Windows.Forms.Padding(10, 3, 10, 3);
-            this.label_Lamp_SIVFailure.Name = "label_Lamp_SIVFailure";
-            this.label_Lamp_SIVFailure.Size = new System.Drawing.Size(80, 15);
-            this.label_Lamp_SIVFailure.TabIndex = 42;
-            this.label_Lamp_SIVFailure.Text = "SIV異常";
-            this.label_Lamp_SIVFailure.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.radio_TASC_High.AutoSize = true;
+            this.radio_TASC_High.Location = new System.Drawing.Point(14, 3);
+            this.radio_TASC_High.Name = "radio_TASC_High";
+            this.radio_TASC_High.Size = new System.Drawing.Size(47, 16);
+            this.radio_TASC_High.TabIndex = 47;
+            this.radio_TASC_High.Text = "高速";
+            this.radio_TASC_High.UseVisualStyleBackColor = true;
+            this.radio_TASC_High.CheckedChanged += new System.EventHandler(this.Radio_TASC_CheckedChanged);
+            // 
+            // radio_TASC_Normal
+            // 
+            this.radio_TASC_Normal.AutoSize = true;
+            this.radio_TASC_Normal.Checked = true;
+            this.radio_TASC_Normal.Location = new System.Drawing.Point(14, 25);
+            this.radio_TASC_Normal.Name = "radio_TASC_Normal";
+            this.radio_TASC_Normal.Size = new System.Drawing.Size(47, 16);
+            this.radio_TASC_Normal.TabIndex = 46;
+            this.radio_TASC_Normal.TabStop = true;
+            this.radio_TASC_Normal.Text = "平常";
+            this.radio_TASC_Normal.UseVisualStyleBackColor = true;
+            this.radio_TASC_Normal.CheckedChanged += new System.EventHandler(this.Radio_TASC_CheckedChanged);
+            // 
+            // radio_TASC_Low
+            // 
+            this.radio_TASC_Low.AutoSize = true;
+            this.radio_TASC_Low.Location = new System.Drawing.Point(14, 47);
+            this.radio_TASC_Low.Name = "radio_TASC_Low";
+            this.radio_TASC_Low.Size = new System.Drawing.Size(47, 16);
+            this.radio_TASC_Low.TabIndex = 48;
+            this.radio_TASC_Low.Text = "低速";
+            this.radio_TASC_Low.UseVisualStyleBackColor = true;
+            this.radio_TASC_Low.CheckedChanged += new System.EventHandler(this.Radio_TASC_CheckedChanged);
             // 
             // MainForm
             // 
@@ -1223,7 +1289,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "TrainCrewMoniter Ver.1.1.0 (Build 2024.07.15)";
+            this.Text = "TrainCrewMoniter Ver.1.1.1 (Build 2024.07.21)";
             this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
@@ -1245,6 +1311,8 @@
             this.group_Car2.PerformLayout();
             this.group_Car1.ResumeLayout(false);
             this.group_Car1.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -1335,6 +1403,11 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label_Lamp_SIVFailure;
         private System.Windows.Forms.Label label_Lamp_DeadMan;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.RadioButton radio_TASC_High;
+        private System.Windows.Forms.RadioButton radio_TASC_Normal;
+        private System.Windows.Forms.RadioButton radio_TASC_Low;
     }
 }
 

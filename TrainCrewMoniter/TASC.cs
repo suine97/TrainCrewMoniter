@@ -18,11 +18,6 @@ namespace TrainCrewMoniter
         private readonly float stoppingDeceleration = 3.0f;
 
         /// <summary>
-        /// 停車パターン用減速度(タイムアタック用)
-        /// </summary>
-        private readonly float stoppingDecelerationForTimeAttack = 3.5f;
-
-        /// <summary>
         /// 軽減パターン用減速度
         /// </summary>
         private readonly float stoppingReductionDeceleration = 2.0f;
@@ -30,7 +25,7 @@ namespace TrainCrewMoniter
         /// <summary>
         /// 速度制限パターン用減速度
         /// </summary>
-        private readonly float limitSpeedDeceleration = 2.5f;
+        private readonly float limitSpeedDeceleration = 3.0f;
 
         /// <summary>
         /// 停車パターン
@@ -173,6 +168,12 @@ namespace TrainCrewMoniter
         public string sTASCPhase = "解除";
 
         /// <summary>
+        /// TASC パターンモード
+        /// [平常, 高速, 低速]
+        /// </summary>
+        public string sTASCPatternMode = "平常";
+
+        /// <summary>
         /// TASC 停車演算パターン(km/h)
         /// </summary>
         public float fTASCPatternSpeed = 0.0f;
@@ -291,7 +292,8 @@ namespace TrainCrewMoniter
         /// TASC 演算メソッド
         /// </summary>
         /// <param name="state">列車の状態</param>
-        public void TASC_Update(TrainState state)
+        /// <param name="signal">信号機状態</param>
+        public void TASC_Update(TrainState state, string signalName)
         {
             float speed = state.Speed;
             float remainigDistance = state.nextStaDistance;
@@ -376,50 +378,10 @@ namespace TrainCrewMoniter
             }
 
             //制動待機距離演算
-            {
-                float calcDeceleration = (TrainCrewInput.gameState.driveMode == DriveMode.RTA) ? stoppingDecelerationForTimeAttack : stoppingDeceleration;
-                float calcDistance = CalcTASCStoppingDistance(speed, calcDeceleration);
-                standbyBreakingDistance = calcDistance + 200.0f;
-            }
+            standbyBreakingDistance = CalcTASCStoppingDistance(speed, stoppingDeceleration) + 200.0f;
 
             //勾配平均値演算
-            if (stopType.Contains("停車") && remainigDistance < standbyBreakingDistance)
-            {
-                var distancePhases = new Dictionary<string, float>
-                {
-                    { "制御待機", 1000.0f },
-                    { "1000", 900.0f },
-                    { "900", 800.0f },
-                    { "800", 700.0f },
-                    { "700", 600.0f },
-                    { "600", 500.0f },
-                    { "500", 400.0f },
-                    { "400", 300.0f },
-                    { "300", 200.0f },
-                    { "200", 100.0f },
-                    { "100", 50.0f },
-                    { "50", 25.0f }
-                };
-
-                if (distancePhases.TryGetValue(sTASCDistancePhase, out var nextDistance))
-                {
-                    if (remainigDistance < nextDistance)
-                    {
-                        gradientAverage = CalcTASCAverageGradient(
-                            data.IsEven(int.Parse(Regex.Replace(state.diaName, @"[^0-9]", ""))) ? UpSideGradient : DownSideGradient,
-                            state.CarStates.Count(),
-                            state.nextStaName,
-                            dist
-                        );
-
-                        sTASCDistancePhase = nextDistance.ToString();
-                    }
-                }
-                else if (sTASCDistancePhase == "25" && sTASCPhase == "停車")
-                {
-                    sTASCDistancePhase = "制御待機";
-                }
-            }
+            gradientAverage = CalcTASCAverageGradient(data.IsEven(int.Parse(Regex.Replace(state.diaName, @"[^0-9]", ""))) ? UpSideGradient : DownSideGradient, state, dist);
 
             //駅停車判定(停止位置範囲内かつ速度が0km/h、ドア開(乗降駅のみ)になったら停車判定)
             if (state.stationList[state.nowStaIndex].stopType == StopType.StopForPassenger && Math.Abs(remainigDistance) <= stopRange && speed.IsZero() && !state.AllClose)
@@ -430,20 +392,27 @@ namespace TrainCrewMoniter
                 IsTASCStoppedStation = false;
 
             //TASC速度制限パターン演算
-            if (state.nextSpeedLimit > 0.0f)
+            float fTASCPatternOffset = (sTASCPatternMode == "高速") ? 0.3f : (sTASCPatternMode == "低速") ? -0.5f : 0.0f;
+            if (state.nextSpeedLimit >= 0.0f)
             {
                 strTargetLimitSpeed = state.nextSpeedLimit;
                 strTargetLimitDistance = (state.nextSpeedLimitDistance > 0.0f) ? state.nextSpeedLimitDistance : 0.0f;
 
-                float calcLimitSpeedPattern = CalcTASCLimitSpeedPattern(strTargetLimitSpeed, strTargetLimitDistance, limitSpeedDeceleration);
-                if (calcLimitSpeedPattern > strTargetLimitSpeed)
+                //出発信号機以外の停止信号ならR0標識手前を目標にする
+                if (strTargetLimitSpeed.IsZero() && !signalName.Contains("出発"))
+                    strTargetLimitDistance = ((strTargetLimitDistance - 15.0f) > 0.0f) ? (strTargetLimitDistance - 15.0f) : 0.0f;
+
+                float calcLimitSpeedPattern = CalcTASCLimitSpeedPattern(strTargetLimitSpeed, strTargetLimitDistance, limitSpeedDeceleration + fTASCPatternOffset);
+                if (calcLimitSpeedPattern > state.speedLimit)
+                    fTASCLimitPatternSpeed = state.speedLimit;
+                else if (calcLimitSpeedPattern > strTargetLimitSpeed)
                     fTASCLimitPatternSpeed = calcLimitSpeedPattern;
                 else
                     fTASCLimitPatternSpeed = strTargetLimitSpeed;
             }
             else
             {
-                strTargetLimitSpeed = state.speedLimit + 5.0f;
+                strTargetLimitSpeed = state.speedLimit;
                 strTargetLimitDistance = 0.0f;
 
                 fTASCLimitPatternSpeed = strTargetLimitSpeed;
@@ -452,11 +421,8 @@ namespace TrainCrewMoniter
             //TASC停車パターン演算
             if (stopType.Contains("停車") && remainigDistance < standbyBreakingDistance)
             {
-                if (TrainCrewInput.gameState.driveMode == DriveMode.RTA)
-                    stoppingPattern = CalcTASCStoppingPattern(dist, stoppingDecelerationForTimeAttack);
-                else
-                    stoppingPattern = CalcTASCStoppingPattern(dist, stoppingDeceleration);
-                stoppingReductionPattern = CalcTASCStoppingReductionPattern(dist, stoppingReductionDeceleration);
+                stoppingPattern = CalcTASCStoppingPattern(dist, stoppingDeceleration + fTASCPatternOffset);
+                stoppingReductionPattern = CalcTASCStoppingReductionPattern(dist, stoppingReductionDeceleration + fTASCPatternOffset);
 
                 if (stoppingPattern > stoppingReductionPattern)
                     fTASCPatternSpeed = stoppingPattern;
@@ -473,7 +439,7 @@ namespace TrainCrewMoniter
                 sTASCDistancePhase = "制御待機";
             }
 
-            //出力ノッチ演算
+            //TASC制動ノッチ演算
             switch (sTASCPhase)
             {
                 case "解除":
@@ -559,8 +525,13 @@ namespace TrainCrewMoniter
                     }
                     break;
                 case "速度制御":
+                    //現在速度が停車パターンを越えたら停車制御開始
+                    if (fTASCPatternSpeed < speed)
+                    {
+                        sTASCPhase = "停車制御";
+                    }
                     //現在速度が速度制限パターンを下回ったら解除
-                    if (fTASCLimitPatternSpeed >= speed)
+                    else if (fTASCLimitPatternSpeed > speed)
                     {
                         iTASCNotch = 0;
                         IsSAPReset = true;
@@ -908,25 +879,30 @@ namespace TrainCrewMoniter
         }
 
         /// <summary>
-        /// TASC 勾配平均値計算メソッド(停止位置まで)
+        /// TASC 勾配平均値計算メソッド
         /// </summary>
         /// <param name="elements"></param>
-        /// <param name="station"></param>
+        /// <param name="_state"></param>
         /// <param name="distance"></param>
         /// <returns></returns>
-        private float CalcTASCAverageGradient(XElement element, int carLength, string station, float distance)
+        private float CalcTASCAverageGradient(XElement element, TrainState _state, float distance)
         {
             float average = 0.0f;
             float dist = distance;
             if (dist < 0.0f) dist = 0.0f;
-
-            var str = element.Elements("Value")
-                .Where(s => s.Element("StationName").Value == station)
-                .Where(s => float.Parse(s.Element("Distance").Value) < (dist + (carLength * 20.0f)))
+            try
+            {
+                var str = element.Elements("Value")
+                .Where(s => s.Element("StationName").Value == _state.nextStaName)
+                .Where(s => float.Parse(s.Element("Distance").Value) < (dist + (_state.CarStates.Count() * 20.0f)))
                 .Select(s => float.Parse(s.Element("Gradient").Value));
 
-            if (str != null && str.Any()) average = str.Average();
-            
+                if (str != null && str.Any()) average = str.Average();
+            }
+            catch
+            {
+                return average;
+            }
             return average;
         }
     }
