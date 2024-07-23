@@ -121,12 +121,6 @@ namespace TrainCrewMoniter
         };
 
         /// <summary>
-        /// TASC 残り距離判定フェーズ
-        /// [制御待機, 600, 500, 400, 300, 200, 100, 50, 25]
-        /// </summary>
-        private string sTASCDistancePhase = "制御待機";
-
-        /// <summary>
         /// TASC 一時保存用動作フェーズ
         /// </summary>
         private string strTASCPhase = "解除";
@@ -367,7 +361,6 @@ namespace TrainCrewMoniter
                 standbyBreakingDistance = 700.0f;
                 strTargetLimitSpeed = 0.0f;
                 strTargetLimitDistance = 0.0f;
-                sTASCDistancePhase = "制御待機";
                 sTASCPhase = "解除";
                 strTASCPhase = "解除";
                 IsTASCOperation = false;
@@ -396,11 +389,15 @@ namespace TrainCrewMoniter
             if (state.nextSpeedLimit >= 0.0f)
             {
                 strTargetLimitSpeed = state.nextSpeedLimit;
-                strTargetLimitDistance = (state.nextSpeedLimitDistance > 0.0f) ? state.nextSpeedLimitDistance : 0.0f;
 
                 //出発信号機以外の停止信号ならR0標識手前を目標にする
+                float calcTargetLimitDistance = (state.nextSpeedLimitDistance > 0.0f) ? state.nextSpeedLimitDistance : 0.0f;
                 if (strTargetLimitSpeed.IsZero() && !signalName.Contains("出発"))
-                    strTargetLimitDistance = ((strTargetLimitDistance - 15.0f) > 0.0f) ? (strTargetLimitDistance - 15.0f) : 0.0f;
+                    strTargetLimitDistance = ((calcTargetLimitDistance - 15.0f) > 0.0f) ? (calcTargetLimitDistance - 15.0f) : 0.0f;
+                else if (strTargetLimitSpeed.IsZero() && signalName.Contains("出発"))
+                    strTargetLimitDistance = calcTargetLimitDistance;
+                else
+                    strTargetLimitDistance = calcTargetLimitDistance - 10.0f;
 
                 float calcLimitSpeedPattern = CalcTASCLimitSpeedPattern(strTargetLimitSpeed, strTargetLimitDistance, limitSpeedDeceleration + fTASCPatternOffset);
                 if (calcLimitSpeedPattern > state.speedLimit)
@@ -436,7 +433,6 @@ namespace TrainCrewMoniter
                 gradientAverage = 0.0f;
                 stoppingPattern = 0.0f;
                 stoppingReductionPattern = 0.0f;
-                sTASCDistancePhase = "制御待機";
             }
 
             //TASC制動ノッチ演算
@@ -469,14 +465,8 @@ namespace TrainCrewMoniter
                     }
                     break;
                 case "停車制御":
-                    //現在速度が速度制限パターンを超えたら速度制御開始
-                    if (fTASCLimitPatternSpeed < speed)
-                    {
-                        strTASCPhase = sTASCPhase;
-                        sTASCPhase = "速度制御";
-                    }
                     //停車軽減パターンに移行したら制動(低減)
-                    else if (stoppingReductionPattern >= stoppingPattern)
+                    if (stoppingReductionPattern >= stoppingPattern)
                     {
                         sTASCPhase = "停車制御(低減)";
                     }
@@ -494,14 +484,8 @@ namespace TrainCrewMoniter
                     }
                     break;
                 case "停車制御(低減)":
-                    //現在速度が速度制限パターンを超えたら速度制御開始
-                    if (fTASCLimitPatternSpeed < speed)
-                    {
-                        strTASCPhase = sTASCPhase;
-                        sTASCPhase = "速度制御";
-                    }
                     //停止位置範囲内かつ速度が0km/h、ドア開(乗降駅のみ)になったら停車判定
-                    else if (IsTASCStoppedStation)
+                    if (IsTASCStoppedStation)
                     {
                         //ツーハンドル車は別処理
                         if (IsTwoHandle)

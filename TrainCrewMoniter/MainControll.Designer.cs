@@ -46,6 +46,11 @@
             this.label_Lamp_ATSOperation = new System.Windows.Forms.Label();
             this.label_Lamp_Door = new System.Windows.Forms.Label();
             this.group_CarInfo = new System.Windows.Forms.GroupBox();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.radio_TASC_High = new System.Windows.Forms.RadioButton();
+            this.radio_TASC_Normal = new System.Windows.Forms.RadioButton();
+            this.radio_TASC_Low = new System.Windows.Forms.RadioButton();
+            this.label12 = new System.Windows.Forms.Label();
             this.check_TASCEnable = new System.Windows.Forms.CheckBox();
             this.check_TopMost = new System.Windows.Forms.CheckBox();
             this.group_TASC = new System.Windows.Forms.GroupBox();
@@ -113,14 +118,10 @@
             this.label20 = new System.Windows.Forms.Label();
             this.label_Car1_BCPress = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
-            this.label12 = new System.Windows.Forms.Label();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.radio_TASC_High = new System.Windows.Forms.RadioButton();
-            this.radio_TASC_Normal = new System.Windows.Forms.RadioButton();
-            this.radio_TASC_Low = new System.Windows.Forms.RadioButton();
             this.group_ATSLamp.SuspendLayout();
             this.group_Laｍp.SuspendLayout();
             this.group_CarInfo.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.group_TASC.SuspendLayout();
             this.group_Car6.SuspendLayout();
             this.group_Car5.SuspendLayout();
@@ -128,7 +129,6 @@
             this.group_Car3.SuspendLayout();
             this.group_Car2.SuspendLayout();
             this.group_Car1.SuspendLayout();
-            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // group_ATSLamp
@@ -379,6 +379,63 @@
             this.group_CarInfo.TabIndex = 38;
             this.group_CarInfo.TabStop = false;
             this.group_CarInfo.Text = "車両情報";
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.radio_TASC_High);
+            this.panel1.Controls.Add(this.radio_TASC_Normal);
+            this.panel1.Controls.Add(this.radio_TASC_Low);
+            this.panel1.Location = new System.Drawing.Point(171, 60);
+            this.panel1.Margin = new System.Windows.Forms.Padding(0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(76, 64);
+            this.panel1.TabIndex = 53;
+            // 
+            // radio_TASC_High
+            // 
+            this.radio_TASC_High.AutoSize = true;
+            this.radio_TASC_High.Location = new System.Drawing.Point(14, 3);
+            this.radio_TASC_High.Name = "radio_TASC_High";
+            this.radio_TASC_High.Size = new System.Drawing.Size(47, 16);
+            this.radio_TASC_High.TabIndex = 47;
+            this.radio_TASC_High.Text = "高速";
+            this.radio_TASC_High.UseVisualStyleBackColor = true;
+            this.radio_TASC_High.CheckedChanged += new System.EventHandler(this.Radio_TASC_CheckedChanged);
+            // 
+            // radio_TASC_Normal
+            // 
+            this.radio_TASC_Normal.AutoSize = true;
+            this.radio_TASC_Normal.Checked = true;
+            this.radio_TASC_Normal.Location = new System.Drawing.Point(14, 25);
+            this.radio_TASC_Normal.Name = "radio_TASC_Normal";
+            this.radio_TASC_Normal.Size = new System.Drawing.Size(47, 16);
+            this.radio_TASC_Normal.TabIndex = 46;
+            this.radio_TASC_Normal.TabStop = true;
+            this.radio_TASC_Normal.Text = "平常";
+            this.radio_TASC_Normal.UseVisualStyleBackColor = true;
+            this.radio_TASC_Normal.CheckedChanged += new System.EventHandler(this.Radio_TASC_CheckedChanged);
+            // 
+            // radio_TASC_Low
+            // 
+            this.radio_TASC_Low.AutoSize = true;
+            this.radio_TASC_Low.Location = new System.Drawing.Point(14, 47);
+            this.radio_TASC_Low.Name = "radio_TASC_Low";
+            this.radio_TASC_Low.Size = new System.Drawing.Size(47, 16);
+            this.radio_TASC_Low.TabIndex = 48;
+            this.radio_TASC_Low.Text = "低速";
+            this.radio_TASC_Low.UseVisualStyleBackColor = true;
+            this.radio_TASC_Low.CheckedChanged += new System.EventHandler(this.Radio_TASC_CheckedChanged);
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.ForeColor = System.Drawing.Color.Black;
+            this.label12.Location = new System.Drawing.Point(26, 165);
+            this.label12.Margin = new System.Windows.Forms.Padding(10, 5, 10, 5);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(40, 12);
+            this.label12.TabIndex = 46;
+            this.label12.Text = "MR圧：";
             // 
             // check_TASCEnable
             // 
@@ -1218,63 +1275,6 @@
             this.label18.TabIndex = 14;
             this.label18.Text = "BC圧：";
             // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.ForeColor = System.Drawing.Color.Black;
-            this.label12.Location = new System.Drawing.Point(26, 165);
-            this.label12.Margin = new System.Windows.Forms.Padding(10, 5, 10, 5);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(40, 12);
-            this.label12.TabIndex = 46;
-            this.label12.Text = "MR圧：";
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.radio_TASC_High);
-            this.panel1.Controls.Add(this.radio_TASC_Normal);
-            this.panel1.Controls.Add(this.radio_TASC_Low);
-            this.panel1.Location = new System.Drawing.Point(171, 60);
-            this.panel1.Margin = new System.Windows.Forms.Padding(0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(76, 64);
-            this.panel1.TabIndex = 53;
-            // 
-            // radio_TASC_High
-            // 
-            this.radio_TASC_High.AutoSize = true;
-            this.radio_TASC_High.Location = new System.Drawing.Point(14, 3);
-            this.radio_TASC_High.Name = "radio_TASC_High";
-            this.radio_TASC_High.Size = new System.Drawing.Size(47, 16);
-            this.radio_TASC_High.TabIndex = 47;
-            this.radio_TASC_High.Text = "高速";
-            this.radio_TASC_High.UseVisualStyleBackColor = true;
-            this.radio_TASC_High.CheckedChanged += new System.EventHandler(this.Radio_TASC_CheckedChanged);
-            // 
-            // radio_TASC_Normal
-            // 
-            this.radio_TASC_Normal.AutoSize = true;
-            this.radio_TASC_Normal.Checked = true;
-            this.radio_TASC_Normal.Location = new System.Drawing.Point(14, 25);
-            this.radio_TASC_Normal.Name = "radio_TASC_Normal";
-            this.radio_TASC_Normal.Size = new System.Drawing.Size(47, 16);
-            this.radio_TASC_Normal.TabIndex = 46;
-            this.radio_TASC_Normal.TabStop = true;
-            this.radio_TASC_Normal.Text = "平常";
-            this.radio_TASC_Normal.UseVisualStyleBackColor = true;
-            this.radio_TASC_Normal.CheckedChanged += new System.EventHandler(this.Radio_TASC_CheckedChanged);
-            // 
-            // radio_TASC_Low
-            // 
-            this.radio_TASC_Low.AutoSize = true;
-            this.radio_TASC_Low.Location = new System.Drawing.Point(14, 47);
-            this.radio_TASC_Low.Name = "radio_TASC_Low";
-            this.radio_TASC_Low.Size = new System.Drawing.Size(47, 16);
-            this.radio_TASC_Low.TabIndex = 48;
-            this.radio_TASC_Low.Text = "低速";
-            this.radio_TASC_Low.UseVisualStyleBackColor = true;
-            this.radio_TASC_Low.CheckedChanged += new System.EventHandler(this.Radio_TASC_CheckedChanged);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -1289,7 +1289,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "TrainCrewMoniter Ver.1.1.1 (Build 2024.07.21)";
+            this.Text = "TrainCrewMoniter Ver.1.1.2 (Build 2024.07.23)";
             this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
@@ -1297,6 +1297,8 @@
             this.group_Laｍp.ResumeLayout(false);
             this.group_CarInfo.ResumeLayout(false);
             this.group_CarInfo.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.group_TASC.ResumeLayout(false);
             this.group_TASC.PerformLayout();
             this.group_Car6.ResumeLayout(false);
@@ -1311,8 +1313,6 @@
             this.group_Car2.PerformLayout();
             this.group_Car1.ResumeLayout(false);
             this.group_Car1.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
             this.ResumeLayout(false);
 
         }
