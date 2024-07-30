@@ -681,6 +681,30 @@
             this.label15.TabIndex = 47;
             this.label15.Text = "ATO P段数：";
             // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.ForeColor = System.Drawing.Color.Black;
+            this.label7.Location = new System.Drawing.Point(13, 69);
+            this.label7.Margin = new System.Windows.Forms.Padding(10, 5, 10, 5);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(76, 12);
+            this.label7.TabIndex = 44;
+            this.label7.Text = "TASC 制限P：";
+            // 
+            // label_TASC_LimitSpeed
+            // 
+            this.label_TASC_LimitSpeed.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_TASC_LimitSpeed.BackColor = System.Drawing.SystemColors.Control;
+            this.label_TASC_LimitSpeed.ForeColor = System.Drawing.Color.Black;
+            this.label_TASC_LimitSpeed.Location = new System.Drawing.Point(104, 69);
+            this.label_TASC_LimitSpeed.Margin = new System.Windows.Forms.Padding(20, 10, 10, 5);
+            this.label_TASC_LimitSpeed.Name = "label_TASC_LimitSpeed";
+            this.label_TASC_LimitSpeed.Size = new System.Drawing.Size(90, 12);
+            this.label_TASC_LimitSpeed.TabIndex = 43;
+            this.label_TASC_LimitSpeed.Text = "0.00km/h";
+            this.label_TASC_LimitSpeed.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // label_TASC_Distance
             // 
             this.label_TASC_Distance.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
