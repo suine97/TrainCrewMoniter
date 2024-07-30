@@ -47,6 +47,12 @@
             this.label_Lamp_ATSOperation = new System.Windows.Forms.Label();
             this.label_Lamp_Door = new System.Windows.Forms.Label();
             this.group_CarInfo = new System.Windows.Forms.GroupBox();
+            this.label_CarInfo_Reverser = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
+            this.label_CarInfo_BNotch = new System.Windows.Forms.Label();
+            this.label_CarInfo_PNotch = new System.Windows.Forms.Label();
+            this.label19 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
             this.check_ATO_StartButtonEnable = new System.Windows.Forms.CheckBox();
             this.check_TASC_SpeedControlEnable = new System.Windows.Forms.CheckBox();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -131,12 +137,6 @@
             this.label20 = new System.Windows.Forms.Label();
             this.label_Car1_BCPress = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
-            this.label12 = new System.Windows.Forms.Label();
-            this.label19 = new System.Windows.Forms.Label();
-            this.label_CarInfo_PNotch = new System.Windows.Forms.Label();
-            this.label_CarInfo_BNotch = new System.Windows.Forms.Label();
-            this.label21 = new System.Windows.Forms.Label();
-            this.label_CarInfo_Reverser = new System.Windows.Forms.Label();
             this.group_ATSLamp.SuspendLayout();
             this.group_Laｍp.SuspendLayout();
             this.group_CarInfo.SuspendLayout();
@@ -424,6 +424,78 @@
             this.group_CarInfo.TabStop = false;
             this.group_CarInfo.Text = "車両情報";
             // 
+            // label_CarInfo_Reverser
+            // 
+            this.label_CarInfo_Reverser.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_CarInfo_Reverser.BackColor = System.Drawing.SystemColors.Control;
+            this.label_CarInfo_Reverser.ForeColor = System.Drawing.Color.Black;
+            this.label_CarInfo_Reverser.Location = new System.Drawing.Point(80, 151);
+            this.label_CarInfo_Reverser.Margin = new System.Windows.Forms.Padding(20, 10, 10, 5);
+            this.label_CarInfo_Reverser.Name = "label_CarInfo_Reverser";
+            this.label_CarInfo_Reverser.Size = new System.Drawing.Size(70, 12);
+            this.label_CarInfo_Reverser.TabIndex = 61;
+            this.label_CarInfo_Reverser.Text = "前進";
+            this.label_CarInfo_Reverser.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.ForeColor = System.Drawing.Color.Black;
+            this.label21.Location = new System.Drawing.Point(17, 151);
+            this.label21.Margin = new System.Windows.Forms.Padding(10, 5, 10, 5);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(47, 12);
+            this.label21.TabIndex = 60;
+            this.label21.Text = "逆転器：";
+            // 
+            // label_CarInfo_BNotch
+            // 
+            this.label_CarInfo_BNotch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_CarInfo_BNotch.BackColor = System.Drawing.SystemColors.Control;
+            this.label_CarInfo_BNotch.ForeColor = System.Drawing.Color.Black;
+            this.label_CarInfo_BNotch.Location = new System.Drawing.Point(80, 195);
+            this.label_CarInfo_BNotch.Margin = new System.Windows.Forms.Padding(20, 10, 10, 5);
+            this.label_CarInfo_BNotch.Name = "label_CarInfo_BNotch";
+            this.label_CarInfo_BNotch.Size = new System.Drawing.Size(70, 12);
+            this.label_CarInfo_BNotch.TabIndex = 59;
+            this.label_CarInfo_BNotch.Text = "B0";
+            this.label_CarInfo_BNotch.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label_CarInfo_PNotch
+            // 
+            this.label_CarInfo_PNotch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_CarInfo_PNotch.BackColor = System.Drawing.SystemColors.Control;
+            this.label_CarInfo_PNotch.ForeColor = System.Drawing.Color.Black;
+            this.label_CarInfo_PNotch.Location = new System.Drawing.Point(80, 173);
+            this.label_CarInfo_PNotch.Margin = new System.Windows.Forms.Padding(20, 10, 10, 5);
+            this.label_CarInfo_PNotch.Name = "label_CarInfo_PNotch";
+            this.label_CarInfo_PNotch.Size = new System.Drawing.Size(70, 12);
+            this.label_CarInfo_PNotch.TabIndex = 58;
+            this.label_CarInfo_PNotch.Text = "P0";
+            this.label_CarInfo_PNotch.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.ForeColor = System.Drawing.Color.Black;
+            this.label19.Location = new System.Drawing.Point(17, 195);
+            this.label19.Margin = new System.Windows.Forms.Padding(10, 5, 10, 5);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(47, 12);
+            this.label19.TabIndex = 57;
+            this.label19.Text = "制動段：";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.ForeColor = System.Drawing.Color.Black;
+            this.label12.Location = new System.Drawing.Point(17, 173);
+            this.label12.Margin = new System.Windows.Forms.Padding(10, 5, 10, 5);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(47, 12);
+            this.label12.TabIndex = 56;
+            this.label12.Text = "力行段：";
+            // 
             // check_ATO_StartButtonEnable
             // 
             this.check_ATO_StartButtonEnable.Enabled = false;
@@ -680,30 +752,6 @@
             this.label15.Size = new System.Drawing.Size(69, 12);
             this.label15.TabIndex = 47;
             this.label15.Text = "ATO P段数：";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.ForeColor = System.Drawing.Color.Black;
-            this.label7.Location = new System.Drawing.Point(13, 69);
-            this.label7.Margin = new System.Windows.Forms.Padding(10, 5, 10, 5);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(76, 12);
-            this.label7.TabIndex = 44;
-            this.label7.Text = "TASC 制限P：";
-            // 
-            // label_TASC_LimitSpeed
-            // 
-            this.label_TASC_LimitSpeed.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_TASC_LimitSpeed.BackColor = System.Drawing.SystemColors.Control;
-            this.label_TASC_LimitSpeed.ForeColor = System.Drawing.Color.Black;
-            this.label_TASC_LimitSpeed.Location = new System.Drawing.Point(104, 69);
-            this.label_TASC_LimitSpeed.Margin = new System.Windows.Forms.Padding(20, 10, 10, 5);
-            this.label_TASC_LimitSpeed.Name = "label_TASC_LimitSpeed";
-            this.label_TASC_LimitSpeed.Size = new System.Drawing.Size(90, 12);
-            this.label_TASC_LimitSpeed.TabIndex = 43;
-            this.label_TASC_LimitSpeed.Text = "0.00km/h";
-            this.label_TASC_LimitSpeed.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // label_TASC_Distance
             // 
@@ -1491,78 +1539,6 @@
             this.label18.TabIndex = 14;
             this.label18.Text = "BC圧：";
             // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.ForeColor = System.Drawing.Color.Black;
-            this.label12.Location = new System.Drawing.Point(17, 173);
-            this.label12.Margin = new System.Windows.Forms.Padding(10, 5, 10, 5);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(47, 12);
-            this.label12.TabIndex = 56;
-            this.label12.Text = "力行段：";
-            // 
-            // label19
-            // 
-            this.label19.AutoSize = true;
-            this.label19.ForeColor = System.Drawing.Color.Black;
-            this.label19.Location = new System.Drawing.Point(17, 195);
-            this.label19.Margin = new System.Windows.Forms.Padding(10, 5, 10, 5);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(47, 12);
-            this.label19.TabIndex = 57;
-            this.label19.Text = "制動段：";
-            // 
-            // label_CarInfo_PNotch
-            // 
-            this.label_CarInfo_PNotch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_CarInfo_PNotch.BackColor = System.Drawing.SystemColors.Control;
-            this.label_CarInfo_PNotch.ForeColor = System.Drawing.Color.Black;
-            this.label_CarInfo_PNotch.Location = new System.Drawing.Point(80, 173);
-            this.label_CarInfo_PNotch.Margin = new System.Windows.Forms.Padding(20, 10, 10, 5);
-            this.label_CarInfo_PNotch.Name = "label_CarInfo_PNotch";
-            this.label_CarInfo_PNotch.Size = new System.Drawing.Size(70, 12);
-            this.label_CarInfo_PNotch.TabIndex = 58;
-            this.label_CarInfo_PNotch.Text = "P0";
-            this.label_CarInfo_PNotch.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // label_CarInfo_BNotch
-            // 
-            this.label_CarInfo_BNotch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_CarInfo_BNotch.BackColor = System.Drawing.SystemColors.Control;
-            this.label_CarInfo_BNotch.ForeColor = System.Drawing.Color.Black;
-            this.label_CarInfo_BNotch.Location = new System.Drawing.Point(80, 195);
-            this.label_CarInfo_BNotch.Margin = new System.Windows.Forms.Padding(20, 10, 10, 5);
-            this.label_CarInfo_BNotch.Name = "label_CarInfo_BNotch";
-            this.label_CarInfo_BNotch.Size = new System.Drawing.Size(70, 12);
-            this.label_CarInfo_BNotch.TabIndex = 59;
-            this.label_CarInfo_BNotch.Text = "B0";
-            this.label_CarInfo_BNotch.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // label21
-            // 
-            this.label21.AutoSize = true;
-            this.label21.ForeColor = System.Drawing.Color.Black;
-            this.label21.Location = new System.Drawing.Point(17, 151);
-            this.label21.Margin = new System.Windows.Forms.Padding(10, 5, 10, 5);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(47, 12);
-            this.label21.TabIndex = 60;
-            this.label21.Text = "逆転器：";
-            // 
-            // label_CarInfo_Reverser
-            // 
-            this.label_CarInfo_Reverser.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_CarInfo_Reverser.BackColor = System.Drawing.SystemColors.Control;
-            this.label_CarInfo_Reverser.ForeColor = System.Drawing.Color.Black;
-            this.label_CarInfo_Reverser.Location = new System.Drawing.Point(80, 151);
-            this.label_CarInfo_Reverser.Margin = new System.Windows.Forms.Padding(20, 10, 10, 5);
-            this.label_CarInfo_Reverser.Name = "label_CarInfo_Reverser";
-            this.label_CarInfo_Reverser.Size = new System.Drawing.Size(70, 12);
-            this.label_CarInfo_Reverser.TabIndex = 61;
-            this.label_CarInfo_Reverser.Text = "前進";
-            this.label_CarInfo_Reverser.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -1577,7 +1553,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "TrainCrewMoniter Ver.1.3.0 (Build 2024.07.30)";
+            this.Text = "TrainCrewMoniter Ver.1.2.0 (Build 2024.07.30)";
             this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
