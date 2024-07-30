@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Xml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>新野崎</StationName>
+		<StartPos>870</StartPos>
+		<EndPos>370</EndPos>
+		<Operation>抑速</Operation>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>館浜</StationName>
+		<StartPos>977</StartPos>
+		<EndPos>430</EndPos>
+		<Operation>抑速</Operation>
+	</Value>
+</Xml>

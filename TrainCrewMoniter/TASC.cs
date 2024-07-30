@@ -4,6 +4,8 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Text.RegularExpressions;
 using TrainCrew;
+using System.Threading.Tasks;
+using static System.Windows.Forms.AxHost;
 
 namespace TrainCrewMoniter
 {
@@ -13,49 +15,223 @@ namespace TrainCrewMoniter
     public class TASC
     {
         /// <summary>
-        /// 停車パターン用減速度
+        /// TASC 停車パターン用減速度
         /// </summary>
-        private readonly float stoppingDeceleration = 3.0f;
+        private readonly float fTASCStoppingDeceleration = 3.0f;
 
         /// <summary>
-        /// 停車パターン用減速度(タイムアタック用)
+        /// TASC 軽減パターン用減速度
         /// </summary>
-        private readonly float stoppingDecelerationForTimeAttack = 3.5f;
+        private readonly float fTASCStoppingReductionDeceleration = 2.0f;
 
         /// <summary>
-        /// 軽減パターン用減速度
+        /// TASC 速度制限パターン用減速度
         /// </summary>
-        private readonly float stoppingReductionDeceleration = 2.0f;
+        private readonly float fTASCLimitSpeedDeceleration = 2.5f;
 
         /// <summary>
-        /// 速度制限パターン用減速度
+        /// TASC 停車パターン
         /// </summary>
-        private readonly float limitSpeedDeceleration = 2.5f;
+        private float fTASCStoppingPattern = 0.0f;
 
         /// <summary>
-        /// 停車パターン
+        /// TASC 停車軽減パターン
         /// </summary>
-        private float stoppingPattern = 0.0f;
+        private float fTASCStoppingReductionPattern = 0.0f;
 
         /// <summary>
-        /// 停車軽減パターン
+        /// TASC 停車パターン用オフセット距離
         /// </summary>
-        private float stoppingReductionPattern = 0.0f;
+        private readonly float fTASCDistanceOffset = 2.00f;
 
         /// <summary>
-        /// 停車パターン用オフセット距離
+        /// TASC 一時保存用動作フェーズ
         /// </summary>
-        private readonly float offset = 2.00f;
+        private string strTASCPhase = "解除";
+
+        /// <summary>
+        /// TASC 一時保存用目標制限速度
+        /// </summary>
+        private float strTargetLimitSpeed = 0.0f;
+
+        /// <summary>
+        /// TASC 一時保存用目標制限距離
+        /// </summary>
+        private float strTargetLimitDistance = 0.0f;
+
+        /// <summary>
+        /// TASC 駅停車判定
+        /// </summary>
+        private bool IsTASCStoppedStation = false;
+
+        /// <summary>
+        /// TASC 有効判定
+        /// </summary>
+        public bool IsTASCEnable = true;
+
+        /// <summary>
+        /// TASC 速度制御有効判定
+        /// </summary>
+        public bool IsTASCSpeedControlEnable = true;
+
+        /// <summary>
+        /// TASC 動作開始判定
+        /// </summary>
+        public bool IsTASCOperation = false;
+
+        /// <summary>
+        /// TASC ブレーキ動作判定
+        /// </summary>
+        public bool IsTASCBraking = false;
+
+        /// <summary>
+        /// TASC 動作フェーズ
+        /// [制御待機, 停車制御, 停車制御(低減), 速度制御, 抑速制御, 停車, 解除]
+        /// </summary>
+        public string sTASCPhase = "解除";
+
+        /// <summary>
+        /// TASC パターンモード
+        /// [平常, 高速, 低速]
+        /// </summary>
+        public string sTASCPatternMode = "平常";
+
+        /// <summary>
+        /// TASC 追加操作
+        /// </summary>
+        private string sTASCAdditionalOperation = "None";
+
+        /// <summary>
+        /// TASC 停車演算パターン(km/h)
+        /// </summary>
+        public float fTASCPatternSpeed = 0.0f;
+
+        /// <summary>
+        /// TASC 速度制限演算パターン(km/h)
+        /// </summary>
+        public float fTASCLimitPatternSpeed = 0.0f;
+
+        /// <summary>
+        /// TASC XML 制限速度(km/h)
+        /// </summary>
+        public float fTASCXmlLimitSpeed = 0.0f;
+
+        /// <summary>
+        /// TASC XML 制限速度までの残り距離(m)
+        /// </summary>
+        public float fTASCXmlLimitDistance = 0.0f;
+
+        /// <summary>
+        /// TASC 演算減速度(km/h/s)
+        /// </summary>
+        public float fTASCDeceleration = 0.0f;
+
+        /// <summary>
+        /// TASC ハンドル段数
+        /// </summary>
+        public int iTASCNotch = 0;
+
+        /// <summary>
+        /// TASC SAP圧力値(kPa)
+        /// </summary>
+        public float fTASCSAPPressure = 0.0f;
+
+        /// <summary>
+        /// TASC 平均勾配値(‰)
+        /// </summary>
+        public float fTASCGradientAverage = 0.0f;
+
+        /// <summary>
+        /// TASC 制動待機距離[m]
+        /// </summary>
+        public float fTASCStandbyBreakingDistance = 700.0f;
+
+        /// <summary>
+        /// ATO 有効判定
+        /// </summary>
+        public bool IsATOEnable = false;
+
+        /// <summary>
+        /// ATO 最高速度到達フラグ
+        /// </summary>
+        public bool IsATOMaxSpeedReached = false;
+
+        /// <summary>
+        /// ATO 出発ボタン操作有効判定
+        /// </summary>
+        public bool IsATOStartButtonControl = false;
+
+        /// <summary>
+        /// ATO 出発ボタン押下判定
+        /// </summary>
+        public bool IsATOStartButtonActive = false;
+
+        /// <summary>
+        /// ATO 動作フェーズ
+        /// [制御待機, 加速制御, 駅停車, 機外停車, 解除]
+        /// </summary>
+        public string sATOPhase = "解除";
+
+        /// <summary>
+        /// ATO パターンモード
+        /// [平常, 回復, 遅速]
+        /// </summary>
+        public string sATOPatternMode = "平常";
+
+        /// <summary>
+        /// ATO 一時保存用動作フェーズ
+        /// </summary>
+        private string strATOPhase = "解除";
+
+        /// <summary>
+        /// ATO 一時保存用最高速度
+        /// </summary>
+        private float strATOMaxSpeed = 0.0f;
+
+        /// <summary>
+        /// ATO ハンドル段数
+        /// </summary>
+        public int iATONotch = 0;
+
+        /// <summary>
+        /// ATO 最高速度(km/h)
+        /// </summary>
+        public float fATOMaxSpeed = 0.0f;
+
+        /// <summary>
+        /// ツーハンドル運転台判定
+        /// </summary>
+        public bool IsTwoHandle = false;
+
+        /// <summary>
+        /// 電磁直通ブレーキ車判定
+        /// </summary>
+        public bool IsSMEEBrake = false;
+
+        /// <summary>
+        /// SAP圧リセット判定
+        /// </summary>
+        public bool IsSAPReset = false;
+
+        /// <summary>
+        /// 勾配起動スイッチ判定
+        /// </summary>
+        private bool IsGradientStart = false;
 
         /// <summary>
         /// 勾配係数
         /// </summary>
-        private readonly int K = 31;
+        private readonly int iGradientCoefficient = 31;
 
         /// <summary>
         /// 停止位置範囲
         /// </summary>
-        private readonly float stopRange = 3.00f;
+        private readonly float fStopRange = 3.00f;
+
+        /// <summary>
+        /// 停止位置オフセット距離
+        /// </summary>
+        private float fStopPositionOffset = 0.0f;
 
         /// <summary>
         /// 空走時間[s]
@@ -126,121 +302,9 @@ namespace TrainCrewMoniter
         };
 
         /// <summary>
-        /// TASC 残り距離判定フェーズ
-        /// [制御待機, 600, 500, 400, 300, 200, 100, 50, 25]
-        /// </summary>
-        private string sTASCDistancePhase = "制御待機";
-
-        /// <summary>
-        /// TASC 一時保存用動作フェーズ
-        /// </summary>
-        private string strTASCPhase = "解除";
-
-        /// <summary>
-        /// TASC 一時保存用目標制限速度
-        /// </summary>
-        private float strTargetLimitSpeed = 0.0f;
-
-        /// <summary>
-        /// TASC 一時保存用目標制限距離
-        /// </summary>
-        private float strTargetLimitDistance = 0.0f;
-
-        /// <summary>
-        /// TASC 駅停車判定
-        /// </summary>
-        private bool IsTASCStoppedStation = false;
-
-        /// <summary>
-        /// TASC 有効判定
-        /// </summary>
-        public bool IsTASCEnable = true;
-
-        /// <summary>
-        /// TASC 動作開始判定
-        /// </summary>
-        public bool IsTASCOperation = false;
-
-        /// <summary>
-        /// TASC ブレーキ動作判定
-        /// </summary>
-        public bool IsTASCBraking = false;
-
-        /// <summary>
-        /// TASC 動作フェーズ
-        /// [制御待機, 停車制御, 停車制御(低減), 速度制御, 停車, 解除]
-        /// </summary>
-        public string sTASCPhase = "解除";
-
-        /// <summary>
-        /// TASC 停車演算パターン(km/h)
-        /// </summary>
-        public float fTASCPatternSpeed = 0.0f;
-
-        /// <summary>
-        /// TASC 速度制限演算パターン(km/h)
-        /// </summary>
-        public float fTASCLimitPatternSpeed = 0.0f;
-
-        /// <summary>
-        /// TASC 演算減速度(km/h/s)
-        /// </summary>
-        public float fTASCDeceleration = 0.0f;
-
-        /// <summary>
-        /// TASC ハンドル段数
-        /// </summary>
-        public int iTASCNotch = 0;
-
-        /// <summary>
-        /// TASC SAP圧力値(kPa)
-        /// </summary>
-        public float fTASCSAPPressure = 0.0f;
-
-        /// <summary>
-        /// 平均勾配値(‰)
-        /// </summary>
-        public float gradientAverage = 0.0f;
-
-        /// <summary>
-        /// 制動待機距離[m]
-        /// </summary>
-        public float standbyBreakingDistance = 700.0f;
-
-        /// <summary>
-        /// Xml 上り勾配情報
-        /// </summary>
-        public XElement UpSideGradient;
-
-        /// <summary>
-        /// Xml 下り勾配情報
-        /// </summary>
-        public XElement DownSideGradient;
-
-        /// <summary>
         /// 車両形式
         /// </summary>
         public TrainModel trainModel = TrainModel.None;
-
-        /// <summary>
-        /// データクラス
-        /// </summary>
-        private readonly Data data = new Data();
-
-        /// <summary>
-        /// ツーハンドル運転台判定
-        /// </summary>
-        public bool IsTwoHandle = false;
-
-        /// <summary>
-        /// 電磁直通ブレーキ車判定
-        /// </summary>
-        public bool IsSMEEBrake = false;
-
-        /// <summary>
-        /// SAP圧リセット判定
-        /// </summary>
-        public bool IsSAPReset = false;
 
         /// <summary>
         /// 車両形式
@@ -260,38 +324,153 @@ namespace TrainCrewMoniter
         }
 
         /// <summary>
+        /// Xml 最高速度情報
+        /// </summary>
+        private List<MaxSpeedClass> MaxSpeedList;
+
+        /// <summary>
+        /// Xml 勾配情報
+        /// </summary>
+        private List<GradientClass> GradientList;
+
+        /// <summary>
+        /// Xml 速度制限情報
+        /// </summary>
+        private List<SpeedLimitClass> SpeedLimitList;
+
+        /// <summary>
+        /// Xml 追加操作情報
+        /// </summary>
+        private List<AdditionalOperationClass> OperationList;
+
+        /// <summary>
+        /// Xml 停止位置オフセット情報
+        /// </summary>
+        private List<StopPositionOffsetClass> StopPositionOffsetList;
+
+        /// <summary>
+        /// データクラス
+        /// </summary>
+        private readonly Data data = new Data();
+
+        /// <summary>
         /// コンストラクタ
         /// </summary>
         public TASC()
         {
+            //Xmlファイル読み込み
+            GradientList = LoadXmlData(@"Xml\Gradient.xml", element => new GradientClass
+            {
+                Direction = element.Element("Direction").Value,
+                StationName = element.Element("StationName").Value,
+                Distance = float.Parse(element.Element("Distance").Value),
+                Gradient = float.Parse(element.Element("Gradient").Value)
+            });
+
+            MaxSpeedList = LoadXmlData(@"Xml\MaxSpeed.xml", element => new MaxSpeedClass
+            {
+                Direction = element.Element("Direction").Value,
+                StationName = element.Element("StationName").Value,
+                Class = element.Element("Class").Value,
+                StartPos = float.Parse(element.Element("StartPos").Value),
+                EndPos = float.Parse(element.Element("EndPos").Value),
+                MaxSpeed = float.Parse(element.Element("MaxSpeed").Value)
+            });
+
+            SpeedLimitList = LoadXmlData(@"Xml\SpeedLimit.xml", element => new SpeedLimitClass
+            {
+                Direction = element.Element("Direction").Value,
+                StartPos = float.Parse(element.Element("StartPos").Value),
+                EndPos = float.Parse(element.Element("EndPos").Value),
+                Limit = float.Parse(element.Element("Limit").Value),
+                BackStopPosName = element.Element("BackStopPosName").Value,
+                NextStopPosName = element.Element("NextStopPosName").Value
+            });
+
+            OperationList = LoadXmlData(@"Xml\Operation.xml", element => new AdditionalOperationClass
+            {
+                Direction = element.Element("Direction").Value,
+                StationName = element.Element("StationName").Value,
+                StartPos = float.Parse(element.Element("StartPos").Value),
+                EndPos = float.Parse(element.Element("EndPos").Value),
+                AdditionalOperation = element.Element("Operation").Value
+            });
+
+            StopPositionOffsetList = LoadXmlData(@"Xml\StopPositionOffset.xml", element => new StopPositionOffsetClass
+            {
+                Direction = element.Element("Direction").Value,
+                StationName = element.Element("StationName").Value,
+                Offset = new List<float>
+                {
+                    float.Parse(element.Element("Offset1").Value),
+                    float.Parse(element.Element("Offset2").Value),
+                    float.Parse(element.Element("Offset3").Value),
+                    float.Parse(element.Element("Offset4").Value),
+                    float.Parse(element.Element("Offset5").Value),
+                    float.Parse(element.Element("Offset6").Value)
+                }
+            });
+
+            //変数初期化
             sTASCPhase = "停車";
             strTASCPhase = "停車";
+            sATOPhase = "解除";
+            strATOPhase = "解除";
+            sTASCAdditionalOperation = "None";
+            IsATOEnable = false;
             IsTASCEnable = true;
+            IsTASCSpeedControlEnable = true;
             IsTASCOperation = false;
             IsTASCBraking = false;
             IsTASCStoppedStation = true;
+            IsATOMaxSpeedReached = false;
+            IsATOStartButtonControl = false;
+            IsATOStartButtonActive = false;
             fTASCPatternSpeed = 120.0f;
             fTASCLimitPatternSpeed = 120.0f;
             fTASCDeceleration = 0.0f;
+            fTASCXmlLimitSpeed = 0.0f;
+            fTASCXmlLimitDistance = 0.0f;
             iTASCNotch = 0;
+            iATONotch = 0;
+            fATOMaxSpeed = 0.0f;
+            strATOMaxSpeed = 0.0f;
             fTASCSAPPressure = 0.0f;
             strTargetLimitSpeed = 0.0f;
             strTargetLimitDistance = 0.0f;
+            fStopPositionOffset = 0.0f;
             trainModel = TrainModel.None;
             IsTwoHandle = false;
             IsSMEEBrake = false;
             IsSAPReset = false;
+            IsGradientStart = false;
+        }
 
-            //xmlファイル読み込み
-            UpSideGradient = XElement.Load(@"Xml\UpSideGradient.xml");
-            DownSideGradient = XElement.Load(@"Xml\DownSideGradient.xml");
+        /// <summary>
+        /// XmlData読み込みメソッド
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="filePath"></param>
+        /// <param name="selector"></param>
+        /// <returns></returns>
+        public static List<T> LoadXmlData<T>(string filePath, Func<XElement, T> selector)
+        {
+            try
+            {
+                return XElement.Load(filePath).Elements().Select(selector).ToList();
+            }
+            catch
+            {
+                return new List<T>();
+            }
         }
 
         /// <summary>
         /// TASC 演算メソッド
         /// </summary>
         /// <param name="state">列車の状態</param>
-        public void TASC_Update(TrainState state)
+        /// <param name="signal">信号機状態</param>
+        public void TASC_Update(TrainState state, string signalName)
         {
             float speed = state.Speed;
             float remainigDistance = state.nextStaDistance;
@@ -353,169 +532,185 @@ namespace TrainCrewMoniter
                     break;
             }
 
+            //ATO有効判定
+            if (!IsATOEnable)
+            {
+                iATONotch = 0;
+                sATOPhase = "解除";
+                strATOPhase = "解除";
+                IsATOMaxSpeedReached = false;
+            }
             //TASC有効判定
             if (!IsTASCEnable)
             {
                 fTASCPatternSpeed = 120.0f;
                 fTASCLimitPatternSpeed = 120.0f;
                 fTASCDeceleration = 0.0f;
-                gradientAverage = 0.0f;
-                stoppingPattern = 0.0f;
-                stoppingReductionPattern = 0.0f;
-                standbyBreakingDistance = 700.0f;
+                fTASCXmlLimitSpeed = 0.0f;
+                fTASCXmlLimitDistance = 0.0f;
+                fTASCGradientAverage = 0.0f;
+                fTASCStoppingPattern = 0.0f;
+                fTASCStoppingReductionPattern = 0.0f;
+                fTASCStandbyBreakingDistance = 700.0f;
                 strTargetLimitSpeed = 0.0f;
                 strTargetLimitDistance = 0.0f;
-                sTASCDistancePhase = "制御待機";
                 sTASCPhase = "解除";
                 strTASCPhase = "解除";
+                sTASCAdditionalOperation = "None";
                 IsTASCOperation = false;
                 IsTASCBraking = false;
                 IsTASCStoppedStation = false;
                 IsSAPReset = false;
+                IsGradientStart = false;
                 return;
             }
 
-            //制動待機距離演算
-            {
-                float calcDeceleration = (TrainCrewInput.gameState.driveMode == DriveMode.RTA) ? stoppingDecelerationForTimeAttack : stoppingDeceleration;
-                float calcDistance = CalcTASCStoppingDistance(speed, calcDeceleration);
-                standbyBreakingDistance = calcDistance + 200.0f;
-            }
+            //停止位置オフセット取得
+            fStopPositionOffset = GetStopPositionOffset(state);
 
-            //勾配平均値演算
-            if (stopType.Contains("停車") && remainigDistance < standbyBreakingDistance)
-            {
-                var distancePhases = new Dictionary<string, float>
-                {
-                    { "制御待機", 1000.0f },
-                    { "1000", 900.0f },
-                    { "900", 800.0f },
-                    { "800", 700.0f },
-                    { "700", 600.0f },
-                    { "600", 500.0f },
-                    { "500", 400.0f },
-                    { "400", 300.0f },
-                    { "300", 200.0f },
-                    { "200", 100.0f },
-                    { "100", 50.0f },
-                    { "50", 25.0f }
-                };
+            //TASCパターンモード設定
+            float fTASCPatternOffset = (sTASCPatternMode == "高速") ? 0.4f : (sTASCPatternMode == "低速") ? -0.5f : 0.0f;
 
-                if (distancePhases.TryGetValue(sTASCDistancePhase, out var nextDistance))
-                {
-                    if (remainigDistance < nextDistance)
-                    {
-                        gradientAverage = CalcTASCAverageGradient(
-                            data.IsEven(int.Parse(Regex.Replace(state.diaName, @"[^0-9]", ""))) ? UpSideGradient : DownSideGradient,
-                            state.CarStates.Count(),
-                            state.nextStaName,
-                            dist
-                        );
+            //TASC制動待機距離演算
+            fTASCStandbyBreakingDistance = CalcTASCStoppingDistance(speed, fTASCStoppingDeceleration) + 200.0f;
 
-                        sTASCDistancePhase = nextDistance.ToString();
-                    }
-                }
-                else if (sTASCDistancePhase == "25" && sTASCPhase == "停車")
-                {
-                    sTASCDistancePhase = "制御待機";
-                }
-            }
-
-            //駅停車判定(停止位置範囲内かつ速度が0km/h、ドア開(乗降駅のみ)になったら停車判定)
-            if (state.stationList[state.nowStaIndex].stopType == StopType.StopForPassenger && Math.Abs(remainigDistance) <= stopRange && speed.IsZero() && !state.AllClose)
+            //TASC駅停車判定(停止位置範囲内かつ速度が0km/h、ドア開(乗降駅のみ)になったら停車判定)
+            if (state.stationList[state.nowStaIndex].stopType == StopType.StopForPassenger && Math.Abs(remainigDistance) <= fStopRange && speed.IsZero() && !state.AllClose)
                 IsTASCStoppedStation = true;
-            else if (state.stationList[state.nowStaIndex].stopType == StopType.StopForOperation && Math.Abs(remainigDistance) <= stopRange && speed.IsZero())
+            else if (state.stationList[state.nowStaIndex].stopType == StopType.StopForOperation && Math.Abs(remainigDistance) <= fStopRange && speed.IsZero())
                 IsTASCStoppedStation = true;
             else
                 IsTASCStoppedStation = false;
 
-            //TASC速度制限パターン演算
-            if (state.nextSpeedLimit > 0.0f)
+            //TASC制限速度取得
+            GetTASCLimitSpeed(state, dist, fStopPositionOffset, out float xmlLimitSpeed, out float xmlLimitDistance);
+            if ((state.nextSpeedLimit >= 0.0f) && state.nextSpeedLimit <= xmlLimitSpeed)
             {
-                strTargetLimitSpeed = state.nextSpeedLimit;
-                strTargetLimitDistance = (state.nextSpeedLimitDistance > 0.0f) ? state.nextSpeedLimitDistance : 0.0f;
+                fTASCXmlLimitSpeed = state.nextSpeedLimit;
+                fTASCXmlLimitDistance = state.nextSpeedLimitDistance;
+            }
+            else
+            {
+                fTASCXmlLimitSpeed = xmlLimitSpeed;
+                fTASCXmlLimitDistance = xmlLimitDistance;
+            }
 
-                float calcLimitSpeedPattern = CalcTASCLimitSpeedPattern(strTargetLimitSpeed, strTargetLimitDistance, limitSpeedDeceleration);
-                if (calcLimitSpeedPattern > strTargetLimitSpeed)
+            //TASC勾配平均値演算
+            if (IsTASCOperation)
+                fTASCGradientAverage = CalcTASCAverageGradient(state, dist, fStopPositionOffset);
+            else
+                fTASCGradientAverage = CalcTASCAverageGradient(state, fTASCXmlLimitDistance, fStopPositionOffset);
+
+            //TASC追加操作取得
+            sTASCAdditionalOperation = GetTASCAdditionalOperation(state, dist, fStopPositionOffset);
+
+            //TASC速度制限パターン演算
+            if (fTASCXmlLimitSpeed < state.speedLimit)
+            {
+                strTargetLimitSpeed = fTASCXmlLimitSpeed;
+
+                //出発信号機以外の停止信号ならR0標識手前を目標にする
+                float calcTargetLimitDistance = (fTASCXmlLimitDistance > 0.0f) ? fTASCXmlLimitDistance : 0.0f;
+                if (strTargetLimitSpeed.IsZero() && !signalName.Contains("出発"))
+                    strTargetLimitDistance = ((calcTargetLimitDistance - 15.0f) > 0.0f) ? (calcTargetLimitDistance - 15.0f) : 0.0f;
+                //出発信号機の停止信号なら信号機建植位置を目標にする
+                else if (strTargetLimitSpeed.IsZero() && signalName.Contains("出発"))
+                    strTargetLimitDistance = calcTargetLimitDistance;
+                //それ以外は10m手前を目標にする
+                else
+                    strTargetLimitDistance = calcTargetLimitDistance - 10.0f;
+
+                //速度制限パターン演算
+                float calcLimitSpeedPattern = CalcTASCLimitSpeedPattern(strTargetLimitSpeed, strTargetLimitDistance, fTASCLimitSpeedDeceleration + fTASCPatternOffset);
+                //最も低い制限速度を選択
+                if (calcLimitSpeedPattern > state.speedLimit)
+                    fTASCLimitPatternSpeed = state.speedLimit;
+                else if (calcLimitSpeedPattern > strTargetLimitSpeed)
                     fTASCLimitPatternSpeed = calcLimitSpeedPattern;
                 else
                     fTASCLimitPatternSpeed = strTargetLimitSpeed;
             }
             else
             {
-                strTargetLimitSpeed = state.speedLimit + 5.0f;
+                strTargetLimitSpeed = state.speedLimit;
                 strTargetLimitDistance = 0.0f;
 
                 fTASCLimitPatternSpeed = strTargetLimitSpeed;
             }
 
             //TASC停車パターン演算
-            if (stopType.Contains("停車") && remainigDistance < standbyBreakingDistance)
+            if (stopType.Contains("停車") && remainigDistance < fTASCStandbyBreakingDistance)
             {
-                if (TrainCrewInput.gameState.driveMode == DriveMode.RTA)
-                    stoppingPattern = CalcTASCStoppingPattern(dist, stoppingDecelerationForTimeAttack);
+                //停車パターン演算
+                fTASCStoppingPattern = CalcTASCStoppingPattern(dist, fTASCStoppingDeceleration + fTASCPatternOffset);
+                //停車軽減パターン演算
+                if (sTASCPatternMode == "高速")
+                    fTASCStoppingReductionPattern = CalcTASCStoppingReductionPattern(dist, fTASCStoppingReductionDeceleration + fTASCPatternOffset);
                 else
-                    stoppingPattern = CalcTASCStoppingPattern(dist, stoppingDeceleration);
-                stoppingReductionPattern = CalcTASCStoppingReductionPattern(dist, stoppingReductionDeceleration);
-
-                if (stoppingPattern > stoppingReductionPattern)
-                    fTASCPatternSpeed = stoppingPattern;
+                    fTASCStoppingReductionPattern = CalcTASCStoppingReductionPattern(dist, fTASCStoppingReductionDeceleration);
+                //停車軽減パターン移行判定
+                if (fTASCStoppingPattern > fTASCStoppingReductionPattern)
+                    fTASCPatternSpeed = fTASCStoppingPattern;
                 else
-                    fTASCPatternSpeed = stoppingReductionPattern;
+                    fTASCPatternSpeed = fTASCStoppingReductionPattern;
             }
             else
             {
                 fTASCPatternSpeed = 120.0f;
                 fTASCDeceleration = 0.0f;
-                gradientAverage = 0.0f;
-                stoppingPattern = 0.0f;
-                stoppingReductionPattern = 0.0f;
-                sTASCDistancePhase = "制御待機";
+                fTASCStoppingPattern = 0.0f;
+                fTASCStoppingReductionPattern = 0.0f;
             }
 
-            //出力ノッチ演算
+            //TASC制動ノッチ演算
             switch (sTASCPhase)
             {
                 case "解除":
-                    //現在速度が速度制限パターンを超えたら速度制御開始
-                    if (fTASCLimitPatternSpeed < speed)
-                    {
-                        strTASCPhase = sTASCPhase;
-                        sTASCPhase = "速度制御";
-                    }
                     //次駅停車かつ残り距離が制動待機距離を下回ったら制御待機
-                    else if (stopType.Contains("停車") && remainigDistance < standbyBreakingDistance)
+                    if (stopType.Contains("停車") && remainigDistance < fTASCStandbyBreakingDistance)
                     {
                         sTASCPhase = "制御待機";
                     }
-                    break;
-                case "制御待機":
-                    //現在速度が速度制限パターンを超えたら速度制御開始
-                    if (fTASCLimitPatternSpeed < speed)
+                    //速度制御が有効かつ現在速度が速度制限パターンを超えたら速度制御開始
+                    else if (IsTASCSpeedControlEnable && (int)fTASCLimitPatternSpeed < (int)speed)
                     {
                         strTASCPhase = sTASCPhase;
                         sTASCPhase = "速度制御";
                     }
+                    //速度制御が有効かつ追加操作が設定されていたら遷移
+                    else if (IsTASCSpeedControlEnable && sTASCAdditionalOperation == "抑速" && state.Pnotch == 0 && iATONotch == 0)
+                    {
+                        strTASCPhase = sTASCPhase;
+                        sTASCPhase = "抑速制御";
+                    }
+                    break;
+                case "制御待機":
                     //現在速度が停車パターンを越えたら停車制御開始
-                    else if (fTASCPatternSpeed < speed)
+                    if (fTASCPatternSpeed < speed)
                     {
                         sTASCPhase = "停車制御";
                     }
-                    break;
-                case "停車制御":
-                    //現在速度が速度制限パターンを超えたら速度制御開始
-                    if (fTASCLimitPatternSpeed < speed)
+                    //速度制御が有効かつ現在速度が速度制限パターンを超えたら速度制御開始
+                    else if (IsTASCSpeedControlEnable && (int)fTASCLimitPatternSpeed < (int)speed)
                     {
                         strTASCPhase = sTASCPhase;
                         sTASCPhase = "速度制御";
                     }
+                    //速度制御が有効かつ追加操作が設定されていたら遷移
+                    else if (IsTASCSpeedControlEnable && sTASCAdditionalOperation == "抑速")
+                    {
+                        strTASCPhase = sTASCPhase;
+                        sTASCPhase = "抑速制御";
+                    }
+                    break;
+                case "停車制御":
                     //停車軽減パターンに移行したら制動(低減)
-                    else if (stoppingReductionPattern >= stoppingPattern)
+                    if (fTASCStoppingReductionPattern >= fTASCStoppingPattern)
                     {
                         sTASCPhase = "停車制御(低減)";
                     }
                     //停止位置範囲外で停車した場合は制動待機へ遷移
-                    else if (stopRange <= Math.Abs(remainigDistance) && speed.IsZero())
+                    else if (fStopRange <= Math.Abs(remainigDistance) && speed.IsZero())
                     {
                         iTASCNotch = 0;
                         IsSAPReset = true;
@@ -528,14 +723,8 @@ namespace TrainCrewMoniter
                     }
                     break;
                 case "停車制御(低減)":
-                    //現在速度が速度制限パターンを超えたら速度制御開始
-                    if (fTASCLimitPatternSpeed < speed)
-                    {
-                        strTASCPhase = sTASCPhase;
-                        sTASCPhase = "速度制御";
-                    }
                     //停止位置範囲内かつ速度が0km/h、ドア開(乗降駅のみ)になったら停車判定
-                    else if (IsTASCStoppedStation)
+                    if (IsTASCStoppedStation)
                     {
                         //ツーハンドル車は別処理
                         if (IsTwoHandle)
@@ -546,7 +735,7 @@ namespace TrainCrewMoniter
                         sTASCPhase = "停車";
                     }
                     //停止位置範囲外で停車した場合は制動待機へ遷移
-                    else if (stopRange <= Math.Abs(remainigDistance) && speed.IsZero())
+                    else if (fStopRange <= Math.Abs(remainigDistance) && speed.IsZero())
                     {
                         iTASCNotch = 0;
                         IsSAPReset = true;
@@ -559,8 +748,14 @@ namespace TrainCrewMoniter
                     }
                     break;
                 case "速度制御":
-                    //現在速度が速度制限パターンを下回ったら解除
-                    if (fTASCLimitPatternSpeed >= speed)
+                    //現在速度が停車パターンを越えたら停車制御開始
+                    if (fTASCPatternSpeed < speed)
+                    {
+                        sTASCPhase = "停車制御";
+                        strTASCPhase = "解除";
+                    }
+                    //速度制御が無効または現在速度が速度制限パターンを下回ったら解除
+                    else if (!IsTASCSpeedControlEnable || (int)fTASCLimitPatternSpeed > (int)speed)
                     {
                         iTASCNotch = 0;
                         IsSAPReset = true;
@@ -573,9 +768,51 @@ namespace TrainCrewMoniter
                         fTASCSAPPressure = CalcTASCLimitSpeedSAP(speed, strTargetLimitSpeed, strTargetLimitDistance);
                     }
                     break;
+                case "抑速制御":
+                    //現在速度が停車パターンを越えたら停車制御開始
+                    if (fTASCPatternSpeed < speed)
+                    {
+                        sTASCPhase = "停車制御";
+                    }
+                    //速度制御が有効かつ現在速度が速度制限パターンを超えたら速度制御開始
+                    else if (IsTASCSpeedControlEnable && (int)fTASCLimitPatternSpeed < (int)speed)
+                    {
+                        strTASCPhase = sTASCPhase;
+                        sTASCPhase = "速度制御";
+                    }
+                    //速度制御が無効 or 力行操作 or 追加操作が消去されたら解除
+                    else if (!IsTASCSpeedControlEnable || 0 < state.Pnotch || 0 < iATONotch || sTASCAdditionalOperation != "抑速")
+                    {
+                        iTASCNotch = 0;
+                        IsSAPReset = true;
+                        sTASCPhase = strTASCPhase;
+                        strTASCPhase = "解除";
+                    }
+                    else
+                    {
+                        //ツーハンドル車は別処理
+                        if (IsTwoHandle)
+                        {
+                            if (fTASCGradientAverage > -5.0f)
+                            {
+                                iTASCNotch = -1;
+                                fTASCSAPPressure = 50.0f;
+                            }
+                            else
+                            {
+                                iTASCNotch = -2;
+                                fTASCSAPPressure = 100.0f;
+                            }
+                        }
+                        else
+                        {
+                            iTASCNotch = -1;
+                        }
+                    }
+                    break;
                 case "停車":
                     //力行段投入で解除
-                    if (0 < state.Pnotch)
+                    if (0 < state.Pnotch || 0 < iATONotch)
                     {
                         iTASCNotch = 0;
                         fTASCSAPPressure = 0.0f;
@@ -590,6 +827,138 @@ namespace TrainCrewMoniter
             //TASC動作判定更新
             IsTASCOperation = !sTASCPhase.Contains("解除");
             IsTASCBraking = sTASCPhase.Contains("停車制御") || sTASCPhase.Contains("速度制御");
+
+            //ATO最高速度取得
+            strATOMaxSpeed = fATOMaxSpeed;
+            fATOMaxSpeed = GetATOMaxSpeed(state, dist, fStopPositionOffset);
+
+            //ATO力行ノッチ演算
+            switch (sATOPhase)
+            {
+                case "解除":
+                    //ATO有効判定なら制御待機へ遷移
+                    if (IsATOEnable)
+                    {
+                        sATOPhase = "制御待機";
+                    }
+                    break;
+                case "制御待機":
+                    //停止位置範囲内かつ速度が0km/h、ドア開(乗降駅のみ)になったら駅停車判定
+                    if (IsTASCStoppedStation)
+                    {
+                        iATONotch = 0;
+                        sATOPhase = "駅停車";
+                    }
+                    //停止位置範囲外で停車した場合は機外停車判定
+                    else if (fStopRange <= Math.Abs(remainigDistance) && speed.IsZero())
+                    {
+                        iATONotch = 0;
+                        sATOPhase = "機外停車";
+                    }
+                    //最高速度が上方に更新されたら最高速度到達フラグを解除
+                    else if (IsATOMaxSpeedReached && (strATOMaxSpeed < fATOMaxSpeed))
+                    {
+                        IsATOMaxSpeedReached = false;
+                        sATOPhase = "加速制御";
+                    }
+                    //最高速度に到達していなければ加速制御へ遷移
+                    else if (!IsATOMaxSpeedReached)
+                    {
+                        sATOPhase = "加速制御";
+                    }
+                    //TASCブレーキ未動作かつ指定速度を下回ったら加速制御へ遷移
+                    else if (!IsTASCBraking && (speed <= (fATOMaxSpeed - 5.0f)))
+                    {
+                        IsATOMaxSpeedReached = false;
+                        sATOPhase = "加速制御";
+                    }
+                    break;
+                case "加速制御":
+                    //停止位置範囲内かつ速度が0km/h、ドア開(乗降駅のみ)になったら駅停車判定
+                    if (IsTASCStoppedStation)
+                    {
+                        iATONotch = 0;
+                        sATOPhase = "駅停車";
+                    }
+                    //停止位置範囲外で停車した場合は機外停車判定
+                    else if (!IsGradientStart && fStopRange <= Math.Abs(remainigDistance) && speed.IsZero())
+                    {
+                        iATONotch = 0;
+                        sATOPhase = "機外停車";
+                    }
+                    //最高速度に到達したら制御待機へ遷移
+                    else if ((fATOMaxSpeed <= 70.0f && (fATOMaxSpeed - 2.0f) <= speed)
+                        || (fATOMaxSpeed > 70.0f && (fATOMaxSpeed - 1.0f) <= speed))
+                    {
+                        iATONotch = 0;
+                        IsATOMaxSpeedReached = true;
+                        sATOPhase = "制御待機";
+                    }
+                    else
+                    {
+                        //勾配起動使用中なら解除
+                        if (IsGradientStart && !speed.IsZero())
+                        {
+                            IsGradientStart = false;
+                            TrainCrewInput.SetButton(InputAction.GradientStart, false);
+                        }
+                        iATONotch = 5;
+                    }
+                    break;
+                case "駅停車":
+                    //停止位置情報が更新されたら加速制御
+                    if ((!IsATOStartButtonControl || (IsATOStartButtonControl && IsATOStartButtonActive))
+                        && fStopRange < Math.Abs(remainigDistance)
+                        && state.Bnotch == 0
+                        && state.Pnotch == 0)
+                    {
+                        IsATOMaxSpeedReached = false;
+
+                        if (IsATOStartButtonControl)
+                        {
+                            sATOPhase = "加速制御(P1)";
+                            strATOPhase = "解除";
+                        }
+                        else
+                        {
+                            strATOPhase = "加速制御(P1)";
+                            sATOPhase = "応答待機";
+                            //0.5秒後に加速制御(P1)へ遷移
+                            _ = WaitForAsync(0.5f, () => ReturnATOPhase());
+                        }
+                    }
+                    break;
+                case "機外停車":
+                    //指定速度を下回ったら加速制御(P1)へ遷移
+                    if ((!IsATOStartButtonControl || (IsATOStartButtonControl && IsATOStartButtonActive))
+                        && ((speed <= (fATOMaxSpeed - 10.0f)) || ((sATOPatternMode == "回復") && (speed <= (fATOMaxSpeed - 5.0f))))
+                        && state.Bnotch == 0
+                        && state.Pnotch == 0)
+                    {
+                        IsATOMaxSpeedReached = false;
+                        sATOPhase = "加速制御(P1)";
+                    }
+                    break;
+                case "加速制御(P1)":
+                    if (iATONotch < 1)
+                    {
+                        iATONotch = 1;
+                        strATOPhase = "加速制御";
+                        sATOPhase = "加速制御(P1)";
+
+                        //上り勾配時は勾配起動
+                        if (fTASCGradientAverage >= 15.0f)
+                        {
+                            IsGradientStart = true;
+                            TrainCrewInput.SetButton(InputAction.GradientStart, true);
+                        }
+                        //1.5秒後に加速制御へ遷移
+                        _ = WaitForAsync(1.5f, () => ReturnATOPhase());
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
 
         /// <summary>
@@ -602,10 +971,10 @@ namespace TrainCrewMoniter
         {
             //距離オフセット設定
             float dist = distance;
-            if (stoppingPattern > stoppingReductionPattern) dist = distance - offset;
+            if (fTASCStoppingPattern > fTASCStoppingReductionPattern) dist = distance - fTASCDistanceOffset;
 
             //勾配値算出
-            float gradientDec = gradientAverage.IsZero() ? 0.0f : (gradientAverage / K);
+            float gradientDec = fTASCGradientAverage.IsZero() ? 0.0f : (fTASCGradientAverage / iGradientCoefficient);
 
             //減速度[km/h/s]に変換した配列を生成
             float[] strCoinstDeceration = constDeceleration[(int)trainModel];
@@ -632,8 +1001,8 @@ namespace TrainCrewMoniter
                 if (5.0f > nowSpeed && index > 4) index = 4;
                 //停止直前にB2へ移行
                 if (2.5f > nowSpeed && index > 2) index = 2;
-                //停止時にB1へ移行
-                if (1.0f > nowSpeed && index > 1) index = 1;
+                //停止時にB1へ移行(下り勾配以外)
+                if (1.0f > nowSpeed && index > 1 && fTASCGradientAverage > -5.0f) index = 1;
             }
             else
             {
@@ -643,8 +1012,8 @@ namespace TrainCrewMoniter
                 if (5.0f > nowSpeed && index > 5) index = 5;
                 //停止直前にB2へ移行
                 if (2.5f > nowSpeed && index > 3) index = 3;
-                //停止時にB1へ移行
-                if (1.0f > nowSpeed && index > 2) index = 2;
+                //停止時にB1へ移行(下り勾配以外)
+                if (1.0f > nowSpeed && index > 2 && fTASCGradientAverage > -5.0f) index = 2;
             }
             //非常ブレーキはB6扱い
             if (index >= 8) index = 7;
@@ -659,12 +1028,12 @@ namespace TrainCrewMoniter
         /// <param name="limitSpeed">制限速度[km/h]</param>
         /// <param name="distance">制限速度までの残り距離[m]</param>
         /// <returns></returns>
-        private int CalcTASCLimitSpeedNotch(float nowSpeed, float  limitSpeed, float distance)
+        private int CalcTASCLimitSpeedNotch(float nowSpeed, float limitSpeed, float distance)
         {
             float dist = distance;
 
             //勾配値算出
-            float gradientDec = gradientAverage.IsZero() ? 0.0f : (gradientAverage / K);
+            float gradientDec = fTASCGradientAverage.IsZero() ? 0.0f : (fTASCGradientAverage / iGradientCoefficient);
 
             //減速度[km/h/s]に変換した配列を生成
             float[] strCoinstDeceration = constDeceleration[(int)trainModel];
@@ -687,11 +1056,15 @@ namespace TrainCrewMoniter
             {
                 //B1以下は出力しない
                 if (index == 0) index = 1;
+                //制限速度との差が小さい時はB4以下を出力
+                if (Math.Abs(limitSpeed - nowSpeed) < 5.0f && index > 4) index = 4;
             }
             else
             {
                 //B1以下は出力しない
                 if (index == 1 || index == 0) index = 2;
+                //制限速度との差が小さい時はB4以下を出力
+                if (Math.Abs(limitSpeed - nowSpeed) < 5.0f && index > 5) index = 5;
             }
             //非常ブレーキはB6扱い
             if (index >= 8) index = 7;
@@ -709,7 +1082,7 @@ namespace TrainCrewMoniter
         {
             //距離オフセット設定
             float dist = distance;
-            if (stoppingPattern > stoppingReductionPattern) dist = distance - offset;
+            if (fTASCStoppingPattern > fTASCStoppingReductionPattern) dist = distance - fTASCDistanceOffset;
 
             //最大減速度[km/h/s]を取得
             float strMaxDeceration = maxDeceleration[(int)trainModel];
@@ -729,8 +1102,8 @@ namespace TrainCrewMoniter
             if (5.0f > nowSpeed && fPressure > 200.0f) fPressure = 200.0f;
             //停止直前に100kPaへ移行
             if (2.5f > nowSpeed && fPressure > 100.0f) fPressure = 100.0f;
-            //停止時に50kPaへ移行
-            if (1.0f > nowSpeed && fPressure > 50.0f) fPressure = 50.0f;
+            //停止時に50kPaへ移行(下り勾配以外)
+            if (1.0f > nowSpeed && fPressure > 50.0f && fTASCGradientAverage > -5.0f) fPressure = 50.0f;
             //非常ブレーキは最大圧力扱い
             if (fPressure > strMaxPressure) fPressure = strMaxPressure;
 
@@ -776,11 +1149,11 @@ namespace TrainCrewMoniter
         /// <returns></returns>
         private float CalcTASCStoppingPattern(float distance, float deceleration)
         {
-            float dist = distance - offset;
+            float dist = distance - fTASCDistanceOffset;
             float dec = deceleration;
             float time = freeRunningTime[(int)trainModel];
             if (dist < 0.0f) dist = 0.0f;
-            if (!gradientAverage.IsZero()) dec += (gradientAverage / K);
+            if (!fTASCGradientAverage.IsZero()) dec += (fTASCGradientAverage / iGradientCoefficient);
 
             //停車パターン演算
             float v = (-2.0f * dec * time + (float)Math.Sqrt((float)Math.Pow(2.0f * dec * time, 2) - 4 * (-7.2 * dec * dist))) / 2;
@@ -800,7 +1173,7 @@ namespace TrainCrewMoniter
             float dec = deceleration;
             float time = freeRunningTime[(int)trainModel];
             if (dist < 0.0f) dist = 0.0f;
-            if (!gradientAverage.IsZero()) dec += (gradientAverage / K);
+            if (!fTASCGradientAverage.IsZero()) dec += (fTASCGradientAverage / iGradientCoefficient);
 
             //軽減パターン演算
             float v = (-2.0f * dec * time + (float)Math.Sqrt((float)Math.Pow(2.0f * dec * time, 2) - 4 * (-7.2 * dec * dist))) / 2;
@@ -817,11 +1190,11 @@ namespace TrainCrewMoniter
         /// <returns></returns>
         private float CalcTASCLimitSpeedPattern(float limitSpeed, float distance, float deceleration)
         {
-            float dist = distance - offset;
+            float dist = distance - fTASCDistanceOffset;
             float dec = deceleration;
             float time = freeRunningTime[(int)trainModel];
             if (dist < 0.0f) dist = 0.0f;
-            if (!gradientAverage.IsZero()) dec += (gradientAverage / K);
+            if (!fTASCGradientAverage.IsZero()) dec += (fTASCGradientAverage / iGradientCoefficient);
 
             //速度制限パターン演算
             float v = -time * dec + (float)Math.Sqrt((float)Math.Pow(time, 2) * (float)Math.Pow(dec, 2) + (float)Math.Pow(limitSpeed, 2) + 7.2f * dec * dist);
@@ -831,35 +1204,6 @@ namespace TrainCrewMoniter
             return v;
         }
 
-        /// <summary>
-        /// TASC 指定速度における指定距離までの減速度演算メソッド
-        /// </summary>
-        /// <param name="nowSpeed">速度[km/h]</param>
-        /// <param name="distance">距離[m]</param>
-        /// <returns></returns>
-        private float CalcTASCDeceleration(float nowSpeed, float distance)
-        {
-            float b = 5.0f;
-            float dist = distance;
-            if (dist < 0.0f) dist = 0.0f;
-
-            //減速度演算
-            try
-            {
-                b = (float)(Math.Pow(nowSpeed, 2) / (7.2 * dist));
-
-                if (!gradientAverage.IsZero()) b -= (gradientAverage / K);
-
-                if (nowSpeed.IsZero()) b = 5.0f;
-                if (b < 0.0f) b = 5.0f;
-                if (b > 5.0f) b = 5.0f;
-            }
-            catch
-            {
-                b = 5.0f;
-            }
-            return b;
-        }
         /// <summary>
         /// TASC 指定速度における指定距離までの減速度演算メソッド
         /// </summary>
@@ -877,7 +1221,7 @@ namespace TrainCrewMoniter
             try
             {
                 b = (float)((Math.Pow(nowSpeed, 2) - Math.Pow(targetSpeed, 2)) / (7.2 * dist));
-                if (!gradientAverage.IsZero()) b -= (gradientAverage / K);
+                if (!fTASCGradientAverage.IsZero()) b -= (fTASCGradientAverage / iGradientCoefficient);
 
                 if (nowSpeed.IsZero()) b = 5.0f;
                 if (b < 0.0f) b = 5.0f;
@@ -893,8 +1237,8 @@ namespace TrainCrewMoniter
         /// <summary>
         /// TASC 指定速度における停止までの距離演算メソッド
         /// </summary>
-        /// <param name="nowSpeed"></param>
-        /// <param name="deceleration"></param>
+        /// <param name="nowSpeed">現在速度[km/h]</param>
+        /// <param name="deceleration">減速度[km/h/s]</param>
         /// <returns></returns>
         private float CalcTASCStoppingDistance(float nowSpeed, float deceleration)
         {
@@ -908,26 +1252,358 @@ namespace TrainCrewMoniter
         }
 
         /// <summary>
-        /// TASC 勾配平均値計算メソッド(停止位置まで)
+        /// TASC 勾配平均値計算メソッド
         /// </summary>
-        /// <param name="elements"></param>
-        /// <param name="station"></param>
-        /// <param name="distance"></param>
+        /// <param name="_state">列車の状態</param>
+        /// <param name="distance">距離[m]</param>
+        /// <param name="offset">距離オフセット[m]</param>
         /// <returns></returns>
-        private float CalcTASCAverageGradient(XElement element, int carLength, string station, float distance)
+        private float CalcTASCAverageGradient(TrainState _state, float distance, float offset)
         {
+            string direction = data.IsEven(int.Parse(Regex.Replace(_state.diaName, @"[^0-9]", ""))) ? "上り" : "下り";
             float average = 0.0f;
             float dist = distance;
             if (dist < 0.0f) dist = 0.0f;
+            try
+            {
+                var str = GradientList
+                    .Where(s => s.Direction == direction)
+                    .Where(s => s.StationName == _state.nextStaName)
+                    .Where(s => (s.Distance - offset) < (dist + (_state.CarStates.Count() * 20.0f)))
+                    .Select(s => s.Gradient);
 
-            var str = element.Elements("Value")
-                .Where(s => s.Element("StationName").Value == station)
-                .Where(s => float.Parse(s.Element("Distance").Value) < (dist + (carLength * 20.0f)))
-                .Select(s => float.Parse(s.Element("Gradient").Value));
-
-            if (str != null && str.Any()) average = str.Average();
-            
+                //一致したデータがあれば取得
+                if (str != null && str.Any()) average = str.Average();
+            }
+            catch
+            {
+                return average;
+            }
             return average;
         }
+
+        /// <summary>
+        /// TASC 制限速度取得メソッド
+        /// </summary>
+        /// <param name="_state">列車の状態</param>
+        /// <param name="distance">距離[m]</param>
+        /// <param name="offset">距離オフセット[m]</param>
+        /// <param name="limitSpeed">制限速度[km/h]</param>
+        /// <param name="limitDistance">制限速度までの距離[m]</param>
+        public void GetTASCLimitSpeed(TrainState _state, float distance, float offset, out float limitSpeed, out float limitDistance)
+        {
+            string direction = data.IsEven(int.Parse(Regex.Replace(_state.diaName, @"[^0-9]", ""))) ? "上り" : "下り";
+            int backStaIndex = (_state.nowStaIndex - 1 < 0) ? 0 : _state.nowStaIndex - 1;
+            int nowStaIndex = _state.nowStaIndex;
+            float strSystemSpeedLimit = (_state.nextSpeedLimit < 0.0f) ? _state.speedLimit : _state.nextSpeedLimit;
+            float strSystemSpeedLimitDistance = (_state.nextSpeedLimit < 0.0f) ? 0.0f : _state.nextSpeedLimitDistance;
+            float dist = (distance < 0.0f) ? 0.0f : distance;
+            float strlimitSpeed = 120.0f;
+            float strlimitDistance = 0.0f;
+            try
+            {
+                var str = SpeedLimitList
+                    .Where(s => s.Direction == direction)
+                    .Where(s => s.BackStopPosName == _state.stationList[backStaIndex].StopPosName || s.NextStopPosName == _state.stationList[nowStaIndex].StopPosName)
+                    .Where(s => (s.StartPos - offset) > dist && dist >= (s.EndPos - offset))
+                    .First();
+
+                //一致したデータがあれば取得
+                if (str != null)
+                {
+                    strlimitSpeed = str.Limit;
+                    strlimitDistance = (str.EndPos - offset) > 0.0f ? (str.EndPos - offset) : 0.0f;
+                }
+
+                //最も低い制限速度を選択
+                if (strlimitSpeed < strSystemSpeedLimit)
+                {
+                    limitSpeed = strlimitSpeed;
+                    limitDistance = ((dist - strlimitDistance) > 0.0f) ? (dist - strlimitDistance) : 0.0f;
+                }
+                else
+                {
+                    limitSpeed = strSystemSpeedLimit;
+                    limitDistance = strSystemSpeedLimitDistance;
+                }
+            }
+            catch
+            {
+                limitSpeed = strSystemSpeedLimit;
+                limitDistance = strSystemSpeedLimitDistance;
+            }
+        }
+
+        /// <summary>
+        /// TASC 追加操作取得メソッド
+        /// </summary>
+        /// <param name="_state">列車の状態</param>
+        /// <param name="distance">距離[m]</param>
+        /// <param name="offset">距離オフセット[m]</param>
+        /// <returns></returns>
+        private string GetTASCAdditionalOperation(TrainState _state, float distance, float offset)
+        {
+            string direction = data.IsEven(int.Parse(Regex.Replace(_state.diaName, @"[^0-9]", ""))) ? "上り" : "下り";
+            float dist = distance;
+            string operation = "None";
+            if (dist < 0.0f) dist = 0.0f;
+            try
+            {
+                var str = OperationList
+                    .Where(s => s.Direction == direction)
+                    .Where(s => s.StationName == _state.nextStaName)
+                    .Where(s => (s.StartPos - offset) > dist && dist >= (s.EndPos - offset))
+                    .Select(s => s.AdditionalOperation);
+
+                //一致したデータがあれば取得
+                if (str != null && str.Any()) operation = str.First();
+            }
+            catch
+            {
+                return operation;
+            }
+            return operation;
+        }
+
+        /// <summary>
+        /// ATO 最高速度取得メソッド
+        /// </summary>
+        /// <param name="_state">列車の状態</param>
+        /// <param name="distance">距離[m]</param>
+        /// <param name="offset">距離オフセット[m]</param>
+        /// <returns></returns>
+        private float GetATOMaxSpeed(TrainState _state, float distance, float offset)
+        {
+            string direction = data.IsEven(int.Parse(Regex.Replace(_state.diaName, @"[^0-9]", ""))) ? "上り" : "下り";
+            float fATOPatternOffset = (sATOPatternMode == "遅速") ? -10.0f : 0.0f;
+            float speedLimit = (_state.nextSpeedLimit < 0.0f) ? _state.speedLimit : _state.nextSpeedLimit;
+            float maxSpeed = speedLimit;
+            string trainClass = _state.Class;
+            float dist = distance;
+            if (dist < 0.0f) dist = 0.0f;
+            try
+            {
+                var str = MaxSpeedList
+                    .Where(s => s.StationName == _state.nextStaName)
+                    .Where(s => s.Class.Contains(trainClass) || s.Class.Contains("その他"))
+                    .Where(s => (s.StartPos - offset) > dist && dist >= (s.EndPos - offset))
+                    .Select(s => s.MaxSpeed);
+
+                //一致したデータがあれば取得
+                if (str != null && str.Any()) maxSpeed = str.First();
+
+                //ATOモード判定
+                if (sATOPatternMode == "回復")
+                    maxSpeed = 110.0f;
+                else
+                    maxSpeed = maxSpeed + fATOPatternOffset;
+
+                //制限速度と最高速度の低い方を選択
+                if (speedLimit < maxSpeed) maxSpeed = speedLimit;
+            }
+            catch
+            {
+                return maxSpeed;
+            }
+            return maxSpeed;
+        }
+
+        /// <summary>
+        /// 遅延実行呼び出しメソッド
+        /// </summary>
+        /// <param name="seconds">遅延秒数[s]</param>
+        /// <param name="action">呼び出し処理</param>
+        /// <returns></returns>
+        private async Task WaitForAsync(float seconds, Action action)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(seconds));
+            action();
+        }
+
+        /// <summary>
+        /// ATO動作フェーズを呼び出し元へ戻す (遅延実行)
+        /// </summary>
+        private void ReturnATOPhase()
+        {
+            sATOPhase = strATOPhase;
+            strATOPhase = "";
+        }
+
+        /// <summary>
+        /// 停止位置オフセット取得メソッド
+        /// </summary>
+        /// <param name="_state">列車の状態</param>
+        /// <returns></returns>
+        private float GetStopPositionOffset(TrainState _state)
+        {
+            string direction = data.IsEven(int.Parse(Regex.Replace(_state.diaName, @"[^0-9]", ""))) ? "上り" : "下り";
+            float offset = 0.0f;
+            try
+            {
+                var str = StopPositionOffsetList
+                    .Where(s => s.Direction == direction)
+                    .Where(s => s.StationName == _state.nextStaName)
+                    .Select(s => s.Offset[_state.CarStates.Count]);
+
+                //一致したデータがあれば取得
+                if (str != null && str.Any() && _state.nextStopType.Contains("停車"))
+                    offset = str.First();
+            }
+            catch
+            {
+                return offset;
+            }
+            return offset;
+        }
     }
+}
+
+/// <summary>
+/// 勾配情報クラス
+/// </summary>
+public class GradientClass
+{
+    /// <summary>
+    /// 上下
+    /// </summary>
+    public string Direction { get; set; }
+
+    /// <summary>
+    /// 駅名
+    /// </summary>
+    public string StationName { get; set; }
+
+    /// <summary>
+    /// 残り距離(m)
+    /// </summary>
+    public float Distance { get; set; }
+
+    /// <summary>
+    /// 勾配値(‰)
+    /// </summary>
+    public float Gradient { get; set; }
+}
+
+/// <summary>
+/// 勾配情報クラス
+/// </summary>
+public class MaxSpeedClass
+{
+    /// <summary>
+    /// 上下
+    /// </summary>
+    public string Direction { get; set; }
+
+    /// <summary>
+    /// 駅名
+    /// </summary>
+    public string StationName { get; set; }
+
+    /// <summary>
+    /// 種別名
+    /// </summary>
+    public string Class { get; set; }
+
+    /// <summary>
+    /// 開始位置(m)
+    /// </summary>
+    public float StartPos { get; set; }
+
+    /// <summary>
+    /// 終了位置(m)
+    /// </summary>
+    public float EndPos { get; set; }
+
+    /// <summary>
+    /// 最高速度(km/h)
+    /// </summary>
+    public float MaxSpeed { get; set; }
+}
+
+/// <summary>
+/// 速度制限クラス
+/// </summary>
+public class SpeedLimitClass
+{
+    /// <summary>
+    /// 上下
+    /// </summary>
+    public string Direction { get; set; }
+
+    /// <summary>
+    /// 開始位置(m)
+    /// </summary>
+    public float StartPos { get; set; }
+
+    /// <summary>
+    /// 終了位置(m)
+    /// </summary>
+    public float EndPos { get; set; }
+
+    /// <summary>
+    /// 制限速度(km/h)
+    /// </summary>
+    public float Limit { get; set; }
+
+    /// <summary>
+    /// 前の停止位置名
+    /// </summary>
+    public string BackStopPosName { get; set; }
+
+    /// <summary>
+    /// 次の停止位置名
+    /// </summary>
+    public string NextStopPosName { get; set; }
+}
+
+/// <summary>
+/// 追加操作クラス
+/// </summary>
+public class AdditionalOperationClass
+{
+    /// <summary>
+    /// 上下
+    /// </summary>
+    public string Direction { get; set; }
+
+    /// <summary>
+    /// 駅名
+    /// </summary>
+    public string StationName { get; set; }
+
+    /// <summary>
+    /// 開始位置(m)
+    /// </summary>
+    public float StartPos { get; set; }
+
+    /// <summary>
+    /// 終了位置(m)
+    /// </summary>
+    public float EndPos { get; set; }
+
+    /// <summary>
+    /// 操作内容
+    /// </summary>
+    public string AdditionalOperation { get; set; }
+}
+
+/// <summary>
+/// 停止位置オフセットクラス
+/// </summary>
+public class StopPositionOffsetClass
+{
+    /// <summary>
+    /// 上下
+    /// </summary>
+    public string Direction { get; set; }
+
+    /// <summary>
+    /// 駅名
+    /// </summary>
+    public string StationName { get; set; }
+
+    /// <summary>
+    /// オフセット[m]
+    /// </summary>
+    public List<float> Offset { get; set; }
 }

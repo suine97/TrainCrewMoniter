@@ -1,5 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Reflection.Emit;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using TrainCrew;
 
@@ -10,11 +15,40 @@ namespace TrainCrewMoniter
     /// </summary>
     public partial class MainForm : Form
     {
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool UnhookWindowsHookEx(IntPtr hhk);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr GetModuleHandle(string lpModuleName);
+
         private readonly Timer timer;
         private readonly Timer interval500Timer;
         private readonly Data data = new Data();
         private readonly TASC tasc = new TASC();
         private bool IsInterval = false;
+        private bool IsTASCChecked = false;
+        private bool IsTASCSpeedControlChecked = false;
+        private bool IsATOStartButtonChecked = false;
+        private static bool IsATOStartButtonPressed = false;
+
+        private const int WH_KEYBOARD_LL = 13;
+        private const int WM_KEYDOWN = 0x0100;
+        private const int WM_KEYUP = 0x0101;
+        private static LowLevelKeyboardProc _proc = HookCallback;
+        private static IntPtr _hookID = IntPtr.Zero;
+
+        private static Keys leftKey;
+        private static Keys rightKey;
+
+        private static bool leftKeyPressed = false;
+        private static bool rightKeyPressed = false;
 
         /// <summary>
         /// コンストラクタ
@@ -25,6 +59,11 @@ namespace TrainCrewMoniter
 
             FormClosing += MainForm_FormClosing;
             this.KeyPreview = true;
+
+            //INIファイルからキー設定を読み込み
+            LoadKeySettings("StartButtonKeys.ini");
+            _hookID = SetHook(_proc);
+            Application.ApplicationExit += new EventHandler(OnApplicationExit);
 
             //Timer設定
             timer = InitializeTimer(50, Timer_Tick);
@@ -101,6 +140,24 @@ namespace TrainCrewMoniter
         }
 
         /// <summary>
+        /// 次停車駅検索メソッド
+        /// </summary>
+        private int FindNextStationIndex(TrainState _state)
+        {
+            int stationIndex = 0;
+
+            for (int i = _state.nowStaIndex; i < _state.stationList.Count(); i++)
+            {
+                if (_state.stationList[i].stopType == StopType.StopForPassenger)
+                {
+                    stationIndex = i;
+                    break;
+                }
+            }
+            return stationIndex;
+        }
+
+        /// <summary>
         /// Timer_Tickイベント (Interval:50ms)
         /// </summary>
         /// <param name="sender"></param>
@@ -109,7 +166,10 @@ namespace TrainCrewMoniter
         {
             var state = TrainCrewInput.GetTrainState();
             TrainCrewInput.RequestStaData();
+            TrainCrewInput.RequestData(DataRequest.Signal);
             if (state == null || state.CarStates.Count == 0 || state.stationList.Count == 0) { return; }
+            try { var dataCheck = state.stationList[state.nowStaIndex].Name; }
+            catch { return; }
 
             //運転画面遷移なら処理
             if (TrainCrewInput.gameState.gameScreen == GameScreen.MainGame
@@ -118,9 +178,20 @@ namespace TrainCrewMoniter
             {
                 SuspendLayout();
 
-                //TASC演算
+                //信号機情報取得
+                var strSignal = TrainCrewInput.signals;
+                var signalName = (strSignal.Count > 0) ? strSignal[0].name : "None";
+                //次停車駅情報取得
+                var nextStationIndex = FindNextStationIndex(state);
+
+                //ATO/TASC設定取得
                 tasc.IsTASCEnable = check_TASCEnable.Checked;
-                tasc.TASC_Update(state);
+                tasc.IsATOEnable = check_ATOEnable.Checked;
+                tasc.IsTASCSpeedControlEnable = check_TASC_SpeedControlEnable.Checked;
+                tasc.IsATOStartButtonControl = check_ATO_StartButtonEnable.Checked;
+                tasc.IsATOStartButtonActive = IsATOStartButtonPressed;
+                //ATO/TASC演算
+                tasc.TASC_Update(state, signalName);
 
                 //列車番号
                 label_CarInfo_DiaName.Text = state.diaName;
@@ -134,6 +205,27 @@ namespace TrainCrewMoniter
                 label_CarInfo_Speed.Text = state.Speed.ToString("F2") + "km/h";
                 //MR圧
                 label_CarInfo_MRPress.Text = state.MR_Press.ToString("F2") + "kPa";
+                //次駅
+                label_CarInfo_NextStation.Text = state.stationList[nextStationIndex].Name;
+                //逆転器
+                if (tasc.IsTwoHandle)
+                    label_CarInfo_Reverser.Text = state.Reverser == 0 ? "中立" : state.Reverser == 1 ? "前進(B)" : state.Reverser == 2 ? "前進(抑速)" : "後進";
+                else
+                    label_CarInfo_Reverser.Text = state.Reverser == 0 ? "中立" : state.Reverser == 1 ? "前進" : "後進";
+                //力行段
+                label_CarInfo_PNotch.Text = "P" + state.Pnotch;
+                //制動段
+                if (tasc.IsSMEEBrake)
+                {
+                    label_CarInfo_BNotch.Text = "B-" + state.Bnotch + "kPa";
+                }
+                else
+                {
+                    if (tasc.IsTwoHandle)
+                        label_CarInfo_BNotch.Text = state.Bnotch >= 8 ? "非常" : "B" + state.Bnotch;
+                    else
+                        label_CarInfo_BNotch.Text = state.Bnotch >= 8 ? "非常" : state.Bnotch == 0 ? "B0" : state.Bnotch == 1 ? "抑速" : "B" + (state.Bnotch - 1);
+                }
 
                 //表示灯[●戸閉]
                 if (state.Lamps[PanelLamp.DoorClose])
@@ -178,6 +270,17 @@ namespace TrainCrewMoniter
                 {
                     label_Lamp_ATSRelease.BackColor = Color.White;
                     label_Lamp_ATSRelease.ForeColor = Color.LightGray;
+                }
+                //表示灯[ATO動作]
+                if (tasc.IsATOEnable)
+                {
+                    label_Lamp_ATOOperation.BackColor = Color.Green;
+                    label_Lamp_ATOOperation.ForeColor = Color.White;
+                }
+                else
+                {
+                    label_Lamp_ATOOperation.BackColor = Color.White;
+                    label_Lamp_ATOOperation.ForeColor = Color.LightGray;
                 }
                 //表示灯[TASC動作]
                 if (tasc.IsTASCOperation)
@@ -293,6 +396,10 @@ namespace TrainCrewMoniter
                         cAmpere[0].ForeColor = Color.Black;
                 }
 
+                //TASC情報[ATO 状態]
+                label_ATO_State.Text = tasc.sATOPhase;
+                //TASC情報[ATO P段数]
+                label_ATO_Notch.Text = "P" + (tasc.iATONotch == 0 ? 0 : tasc.iATONotch);
                 //TASC情報[TASC 状態]
                 label_TASC_State.Text = tasc.sTASCPhase;
                 //TASC情報[TASC 停車P]
@@ -315,9 +422,9 @@ namespace TrainCrewMoniter
                 else
                     label_TASC_Notch.Text = "B" + (tasc.iTASCNotch == 0 ? 0 : -(tasc.iTASCNotch + 1));
                 //TASC情報[TASC 勾配値]
-                label_TASC_Gradient.Text = tasc.gradientAverage.ToString("F2") + "‰";
+                label_TASC_Gradient.Text = tasc.fTASCGradientAverage.ToString("F2") + "‰";
                 //TASC情報[TASC 開始距離]
-                label_TASC_Distance.Text = tasc.standbyBreakingDistance.ToString("F2") + "m";
+                label_TASC_Distance.Text = tasc.fTASCStandbyBreakingDistance.ToString("F2") + "m";
 
                 //TASCノッチ出力処理
                 if (tasc.IsSMEEBrake)
@@ -340,6 +447,11 @@ namespace TrainCrewMoniter
                         //SAP圧出力
                         TrainCrewInput.SetBrakeSAP(tasc.fTASCSAPPressure);
                     }
+                    else
+                    {
+                        //ATOノッチ出力
+                        TrainCrewInput.SetATO_Notch(tasc.iTASCNotch < 0 ? tasc.iTASCNotch : tasc.iATONotch);
+                    }
                 }
                 else
                 {
@@ -352,7 +464,7 @@ namespace TrainCrewMoniter
                     else
                     {
                         //ATOノッチ出力
-                        TrainCrewInput.SetATO_Notch(tasc.iTASCNotch);
+                        TrainCrewInput.SetATO_Notch(tasc.iTASCNotch < 0 ? tasc.iTASCNotch : tasc.iATONotch);
                     }
                 }
 
@@ -380,6 +492,14 @@ namespace TrainCrewMoniter
                 label_CarInfo_Speed.Text = "0.00km/h";
                 //MR圧
                 label_CarInfo_MRPress.Text = "0.00kPa";
+                //次停車駅
+                label_CarInfo_NextStation.Text = "館浜";
+                //逆転器
+                label_CarInfo_Reverser.Text = "前進";
+                //力行段
+                label_CarInfo_PNotch.Text = "P0";
+                //制動段
+                label_CarInfo_BNotch.Text = "B0";
 
                 //表示灯[●戸閉]
                 label_Lamp_Door.BackColor = Color.White;
@@ -393,6 +513,9 @@ namespace TrainCrewMoniter
                 //表示灯[ATS開放]
                 label_Lamp_ATSRelease.BackColor = Color.White;
                 label_Lamp_ATSRelease.ForeColor = Color.LightGray;
+                //表示灯[ATO動作]
+                label_Lamp_ATOOperation.BackColor = Color.White;
+                label_Lamp_ATOOperation.ForeColor = Color.LightGray;
                 //表示灯[TASC動作]
                 label_Lamp_TASCOperation.BackColor = Color.White;
                 label_Lamp_TASCOperation.ForeColor = Color.LightGray;
@@ -426,6 +549,10 @@ namespace TrainCrewMoniter
                 //車両[電流]
                 InitializeLabelCarAmpere();
 
+                //TASC情報[ATO 状態]
+                label_ATO_State.Text = "制動待機";
+                //TASC情報[ATO P段数]
+                label_ATO_Notch.Text = "P0";
                 //TASC情報[TASC 状態]
                 label_TASC_State.Text = "制動待機";
                 //TASC情報[TASC 停車P]
@@ -447,6 +574,7 @@ namespace TrainCrewMoniter
                 tasc.fTASCLimitPatternSpeed = 120.0f;
                 tasc.fTASCDeceleration = 0.0f;
                 tasc.iTASCNotch = 0;
+                tasc.iATONotch = 0;
                 tasc.trainModel = TASC.TrainModel.None;
 
                 ResumeLayout();
@@ -497,6 +625,226 @@ namespace TrainCrewMoniter
         private void Check_TopMost_CheckedChanged(object sender, EventArgs e)
         {
             this.TopMost = check_TopMost.Checked;
+        }
+
+        /// <summary>
+        /// Check_TASCEnable_CheckedChangedイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Check_TASCEnable_CheckedChanged(object sender, EventArgs e)
+        {
+            if (check_TASCEnable.Checked)
+            {
+                check_TASC_SpeedControlEnable.Checked = IsTASCSpeedControlChecked;
+                check_TASC_SpeedControlEnable.Enabled = true;
+                radio_TASC_High.Enabled = true;
+                radio_TASC_Normal.Enabled = true;
+                radio_TASC_Low.Enabled = true;
+            }
+            else
+            {
+                IsTASCSpeedControlChecked = check_TASC_SpeedControlEnable.Checked;
+                check_TASC_SpeedControlEnable.Checked = false;
+                check_TASC_SpeedControlEnable.Enabled = false;
+                radio_TASC_High.Enabled = false;
+                radio_TASC_Normal.Enabled = false;
+                radio_TASC_Low.Enabled = false;
+            }
+        }
+
+        /// <summary>
+        /// Check_ATOEnable_CheckedChangedイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Check_ATOEnable_CheckedChanged(object sender, EventArgs e)
+        {
+            //CheckBoxイベント一時削除
+            check_TASCEnable.CheckedChanged -= Check_TASCEnable_CheckedChanged;
+
+            if (check_ATOEnable.Checked)
+            {
+                IsTASCChecked = check_TASCEnable.Checked;
+                IsTASCSpeedControlChecked = check_TASC_SpeedControlEnable.Checked;
+
+                check_TASCEnable.Checked = true;
+                check_TASCEnable.Enabled = false;
+
+                check_TASC_SpeedControlEnable.Checked = true;
+                check_TASC_SpeedControlEnable.Enabled = false;
+
+                check_ATO_StartButtonEnable.Checked = IsATOStartButtonChecked;
+                check_ATO_StartButtonEnable.Enabled = true;
+
+                radio_ATO_High.Enabled = true;
+                radio_ATO_Normal.Enabled = true;
+                radio_ATO_Low.Enabled = true;
+            }
+            else
+            {
+                check_TASC_SpeedControlEnable.Checked = IsTASCSpeedControlChecked;
+                check_TASCEnable.Checked = IsTASCChecked;
+
+                check_TASCEnable.Enabled = true;
+                if (check_TASCEnable.Checked)
+                    check_TASC_SpeedControlEnable.Enabled = true;
+
+                IsATOStartButtonChecked = check_ATO_StartButtonEnable.Checked;
+                check_ATO_StartButtonEnable.Checked = false;
+                check_ATO_StartButtonEnable.Enabled = false;
+                
+                radio_ATO_High.Enabled = false;
+                radio_ATO_Normal.Enabled = false;
+                radio_ATO_Low.Enabled = false;
+            }
+
+            //CheckBoxイベント復元
+            check_TASCEnable.CheckedChanged += Check_TASCEnable_CheckedChanged;
+        }
+
+        /// <summary>
+        /// Radio_TASC_CheckedChangedイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Radio_TASC_CheckedChanged(object sender, EventArgs e)
+        {
+            RadioButton btn = (RadioButton)sender;
+            tasc.sTASCPatternMode = btn.Text;
+        }
+
+        /// <summary>
+        /// Radio_ATO_CheckedChangedイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Radio_ATO_CheckedChanged(object sender, EventArgs e)
+        {
+            RadioButton btn = (RadioButton)sender;
+            tasc.sATOPatternMode = btn.Text;
+        }
+
+        /// <summary>
+        /// StartButtonKeys.ini読み込みメソッド
+        /// </summary>
+        /// <param name="filePath"></param>
+        private static void LoadKeySettings(string filePath)
+        {
+            if (File.Exists(filePath))
+            {
+                string[] lines = File.ReadAllLines(filePath);
+                foreach (string line in lines)
+                {
+                    // コメント行や空行をスキップ
+                    if (string.IsNullOrWhiteSpace(line) || line.TrimStart().StartsWith("#"))
+                    {
+                        continue;
+                    }
+
+                    // key:value 形式の設定を解析
+                    string[] parts = line.Split(':');
+                    if (parts.Length == 2)
+                    {
+                        string keyName = parts[0].Trim();
+                        string keyValue = parts[1].Trim();
+
+                        try
+                        {
+                            if (keyName.Equals("LeftKey", StringComparison.OrdinalIgnoreCase))
+                            {
+                                leftKey = (Keys)Enum.Parse(typeof(Keys), keyValue, true);
+                            }
+                            else if (keyName.Equals("RightKey", StringComparison.OrdinalIgnoreCase))
+                            {
+                                rightKey = (Keys)Enum.Parse(typeof(Keys), keyValue, true);
+                            }
+                        }
+                        catch
+                        {
+                            MessageBox.Show("StartButtonKeys.iniでエラーが発生しました。");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("StartButtonKeys.iniが見つかりませんでした。");
+            }
+        }
+
+        /// <summary>
+        /// グローバルホック設定
+        /// </summary>
+        /// <param name="proc"></param>
+        /// <returns></returns>
+        private static IntPtr SetHook(LowLevelKeyboardProc proc)
+        {
+            using (Process curProcess = Process.GetCurrentProcess())
+            using (ProcessModule curModule = curProcess.MainModule)
+            {
+                return SetWindowsHookEx(WH_KEYBOARD_LL, proc,
+                    GetModuleHandle(curModule.ModuleName), 0);
+            }
+        }
+
+        private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+        /// <summary>
+        /// キー押下判定
+        /// </summary>
+        /// <param name="nCode"></param>
+        /// <param name="wParam"></param>
+        /// <param name="lParam"></param>
+        /// <returns></returns>
+        private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+        {
+            if (nCode >= 0)
+            {
+                int vkCode = Marshal.ReadInt32(lParam);
+                Keys key = (Keys)vkCode;
+
+                if (wParam == (IntPtr)WM_KEYDOWN)
+                {
+                    if (key == leftKey)
+                    {
+                        leftKeyPressed = true;
+                    }
+                    else if (key == rightKey)
+                    {
+                        rightKeyPressed = true;
+                    }
+
+                    if (leftKeyPressed && rightKeyPressed)
+                    {
+                        IsATOStartButtonPressed = true;
+                    }
+                }
+                else if (wParam == (IntPtr)WM_KEYUP)
+                {
+                    if (key == leftKey)
+                    {
+                        leftKeyPressed = false;
+                        IsATOStartButtonPressed = false;
+                    }
+                    else if (key == rightKey)
+                    {
+                        rightKeyPressed = false;
+                        IsATOStartButtonPressed = false;
+                    }
+                }
+            }
+            return CallNextHookEx(_hookID, nCode, wParam, lParam);
+        }
+
+        /// <summary>
+        /// グローバルホック解除処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnApplicationExit(object sender, EventArgs e)
+        {
+            UnhookWindowsHookEx(_hookID);
         }
     }
 }
