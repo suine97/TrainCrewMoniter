@@ -108,6 +108,18 @@ namespace TrainCrewMoniter
             label_Car6_Door.ForeColor = Color.LightGray;
         }
         /// <summary>
+        /// LabelCarModel初期化メソッド
+        /// </summary>
+        private void InitializeLabelCarModel()
+        {
+            label_Car1_Model.Text = "----";
+            label_Car2_Model.Text = "----";
+            label_Car3_Model.Text = "----";
+            label_Car4_Model.Text = "----";
+            label_Car5_Model.Text = "----";
+            label_Car6_Model.Text = "----";
+        }
+        /// <summary>
         /// LabelCarBCPress初期化メソッド
         /// </summary>
         private void InitializeLabelCarBCPress()
@@ -226,7 +238,7 @@ namespace TrainCrewMoniter
                         label_CarInfo_BNotch.Text = state.Bnotch >= 8 ? "非常" : state.Bnotch == 0 ? "B0" : state.Bnotch == 1 ? "抑速" : "B" + (state.Bnotch - 1);
                 }
 
-                //表示灯[●戸閉]
+                //状態表示灯[●戸閉]
                 if (state.Lamps[PanelLamp.DoorClose])
                 {
                     label_Lamp_Door.BackColor = Color.Green;
@@ -237,7 +249,7 @@ namespace TrainCrewMoniter
                     label_Lamp_Door.BackColor = Color.White;
                     label_Lamp_Door.ForeColor = Color.LightGray;
                 }
-                //表示灯[ATS正常]
+                //状態表示灯[ATS正常]
                 if (state.Lamps[PanelLamp.ATS_Ready])
                 {
                     label_Lamp_ATSNormal.BackColor = Color.Green;
@@ -248,7 +260,7 @@ namespace TrainCrewMoniter
                     label_Lamp_ATSNormal.BackColor = Color.White;
                     label_Lamp_ATSNormal.ForeColor = Color.LightGray;
                 }
-                //表示灯[ATS動作]
+                //状態表示灯[ATS動作]
                 if (state.Lamps[PanelLamp.ATS_BrakeApply])
                 {
                     label_Lamp_ATSOperation.BackColor = Color.Red;
@@ -259,7 +271,7 @@ namespace TrainCrewMoniter
                     label_Lamp_ATSOperation.BackColor = Color.White;
                     label_Lamp_ATSOperation.ForeColor = Color.LightGray;
                 }
-                //表示灯[ATS開放]
+                //状態表示灯[ATS開放]
                 if (state.Lamps[PanelLamp.ATS_Open])
                 {
                     label_Lamp_ATSRelease.BackColor = Color.Orange;
@@ -270,7 +282,7 @@ namespace TrainCrewMoniter
                     label_Lamp_ATSRelease.BackColor = Color.White;
                     label_Lamp_ATSRelease.ForeColor = Color.LightGray;
                 }
-                //表示灯[ATO動作]
+                //状態表示灯[ATO動作]
                 if (tasc.IsATOEnable)
                 {
                     label_Lamp_ATOOperation.BackColor = Color.Green;
@@ -281,7 +293,7 @@ namespace TrainCrewMoniter
                     label_Lamp_ATOOperation.BackColor = Color.White;
                     label_Lamp_ATOOperation.ForeColor = Color.LightGray;
                 }
-                //表示灯[TASC動作]
+                //状態表示灯[TASC動作]
                 if (tasc.IsTASCOperation)
                 {
                     label_Lamp_TASCOperation.BackColor = Color.Orange;
@@ -292,7 +304,7 @@ namespace TrainCrewMoniter
                     label_Lamp_TASCOperation.BackColor= Color.White;
                     label_Lamp_TASCOperation.ForeColor = Color.LightGray;
                 }
-                //表示灯[TASCブレーキ]
+                //状態表示灯[TASCブレーキ]
                 if (tasc.IsTASCBraking)
                 {
                     label_Lamp_TASCBrake.BackColor = Color.Orange;
@@ -303,7 +315,7 @@ namespace TrainCrewMoniter
                     label_Lamp_TASCBrake.BackColor= Color.White;
                     label_Lamp_TASCBrake.ForeColor = Color.LightGray;
                 }
-                //表示灯[回生]
+                //状態表示灯[回生]
                 if (state.Lamps[PanelLamp.RegenerativeBrake])
                 {
                     label_Lamp_Regeneration.BackColor = Color.Orange;
@@ -314,7 +326,7 @@ namespace TrainCrewMoniter
                     label_Lamp_Regeneration.BackColor= Color.White;
                     label_Lamp_Regeneration.ForeColor = Color.LightGray;
                 }
-                //表示灯[EB]
+                //状態表示灯[EB]
                 if (state.Lamps[PanelLamp.EB_Timer])
                 {
                     label_Lamp_EB.BackColor = Color.Red;
@@ -325,7 +337,7 @@ namespace TrainCrewMoniter
                     label_Lamp_EB.BackColor= Color.White;
                     label_Lamp_EB.ForeColor = Color.LightGray;
                 }
-                //表示灯[非常ブレーキ]
+                //状態表示灯[非常ブレーキ]
                 if (state.Lamps[PanelLamp.EmagencyBrake])
                 {
                     label_Lamp_EmergencyBrake.BackColor = Color.Red;
@@ -336,7 +348,7 @@ namespace TrainCrewMoniter
                     label_Lamp_EmergencyBrake.BackColor= Color.White;
                     label_Lamp_EmergencyBrake.ForeColor = Color.LightGray;
                 }
-                //表示灯[過負荷]
+                //状態表示灯[過負荷]
                 if (state.Lamps[PanelLamp.Overload])
                 {
                     label_Lamp_Overload.BackColor = Color.Red;
@@ -348,16 +360,16 @@ namespace TrainCrewMoniter
                     label_Lamp_Overload.ForeColor = Color.LightGray;
                 }
 
-                //ATS表示灯[種別]
+                //ATS表示器[種別]
                 label_ATSLamp_Class.Text = state.ATS_Class.ToString();
-                //ATS表示灯[制限]
+                //ATS表示器[制限]
                 if (state.ATS_Speed == "112")
                     label_ATSLamp_Speed.Text = "110";
                 else if (state.ATS_Speed == "300")
                     label_ATSLamp_Speed.Text = "F";
                 else
                     label_ATSLamp_Speed.Text = state.ATS_Speed.ToString();
-                //ATS表示灯[状態]
+                //ATS表示器[状態]
                 label_ATSLamp_State.Text = state.ATS_State.ToString();
 
                 //車両[●戸閉]
@@ -375,6 +387,13 @@ namespace TrainCrewMoniter
                         cDoor[0].BackColor = Color.White;
                         cDoor[0].ForeColor = Color.LightGray;
                     }
+                }
+                //車両[車種]
+                InitializeLabelCarModel();
+                for (int i = 0; i < state.CarStates.Count; i++)
+                {
+                    Control[] cModel = this.Controls.Find($"label_Car{i + 1}_Model", true);
+                    cModel[0].Text = state.CarStates[i].CarModel.ToString();
                 }
                 //車両[BC圧力]
                 InitializeLabelCarBCPress();
@@ -395,10 +414,6 @@ namespace TrainCrewMoniter
                         cAmpere[0].ForeColor = Color.Black;
                 }
 
-                //TASC情報[ATO 状態]
-                label_ATO_State.Text = tasc.sATOPhase;
-                //TASC情報[ATO P段数]
-                label_ATO_Notch.Text = "P" + (tasc.iATONotch == 0 ? 0 : tasc.iATONotch);
                 //TASC情報[TASC 状態]
                 label_TASC_State.Text = tasc.sTASCPhase;
                 //TASC情報[TASC 停車P]
@@ -420,10 +435,39 @@ namespace TrainCrewMoniter
                     label_TASC_Notch.Text = "B" + (tasc.iTASCNotch == 0 ? 0 : -tasc.iTASCNotch);
                 else
                     label_TASC_Notch.Text = "B" + (tasc.iTASCNotch == 0 ? 0 : -(tasc.iTASCNotch + 1));
+                if (tasc.iTASCNotch != 0)
+                {
+                    label_TASC_Notch.BackColor = Color.OrangeRed;
+                    label_TASC_Notch.ForeColor = Color.White;
+                }
+                else
+                {
+                    label_TASC_Notch.BackColor = Color.White;
+                    label_TASC_Notch.ForeColor = Color.Black;
+                }
                 //TASC情報[TASC 勾配値]
                 label_TASC_Gradient.Text = tasc.fTASCGradientAverage.ToString("F2") + "‰";
                 //TASC情報[TASC 開始距離]
                 label_TASC_Distance.Text = tasc.fTASCStandbyBreakingDistance.ToString("F2") + "m";
+                //TASC情報[ATO 状態]
+                label_ATO_State.Text = tasc.sATOPhase;
+                //TASC情報[ATO P段数]
+                label_ATO_Notch.Text = "P" + (tasc.iATONotch == 0 ? 0 : tasc.iATONotch);
+                if (tasc.iATONotch != 0)
+                {
+                    label_ATO_Notch.BackColor = Color.DodgerBlue;
+                    label_ATO_Notch.ForeColor = Color.White;
+                }
+                else
+                {
+                    label_ATO_Notch.BackColor = Color.White;
+                    label_ATO_Notch.ForeColor = Color.Black;
+                }
+                //ATO情報[ATO 出発ボタン]
+                label_ATO_LButton.BackColor = leftKeyPressed ? Color.Green : Color.White;
+                label_ATO_RButton.BackColor = rightKeyPressed ? Color.Green: Color.White;
+                label_ATO_LButton.ForeColor = leftKeyPressed ? Color.White : Color.Black;
+                label_ATO_RButton.ForeColor = rightKeyPressed ? Color.White : Color.Black;
 
                 //TASCノッチ出力処理
                 if (tasc.IsSMEEBrake)
@@ -500,58 +544,56 @@ namespace TrainCrewMoniter
                 //制動段
                 label_CarInfo_BNotch.Text = "B0";
 
-                //表示灯[●戸閉]
+                //状態表示灯[●戸閉]
                 label_Lamp_Door.BackColor = Color.White;
                 label_Lamp_Door.ForeColor = Color.LightGray;
-                //表示灯[ATS正常]
+                //状態表示灯[ATS正常]
                 label_Lamp_ATSNormal.BackColor = Color.White;
                 label_Lamp_ATSNormal.ForeColor = Color.LightGray;
-                //表示灯[ATS動作]
+                //状態表示灯[ATS動作]
                 label_Lamp_ATSOperation.BackColor = Color.White;
                 label_Lamp_ATSOperation.ForeColor = Color.LightGray;
-                //表示灯[ATS開放]
+                //状態表示灯[ATS開放]
                 label_Lamp_ATSRelease.BackColor = Color.White;
                 label_Lamp_ATSRelease.ForeColor = Color.LightGray;
-                //表示灯[ATO動作]
+                //状態表示灯[ATO動作]
                 label_Lamp_ATOOperation.BackColor = Color.White;
                 label_Lamp_ATOOperation.ForeColor = Color.LightGray;
-                //表示灯[TASC動作]
+                //状態表示灯[TASC動作]
                 label_Lamp_TASCOperation.BackColor = Color.White;
                 label_Lamp_TASCOperation.ForeColor = Color.LightGray;
-                //表示灯[TASCブレーキ]
+                //状態表示灯[TASCブレーキ]
                 label_Lamp_TASCBrake.BackColor = Color.White;
                 label_Lamp_TASCBrake.ForeColor = Color.LightGray;
-                //表示灯[回生]
+                //状態表示灯[回生]
                 label_Lamp_Regeneration.BackColor = Color.White;
                 label_Lamp_Regeneration.ForeColor = Color.LightGray;
-                //表示灯[EB]
+                //状態表示灯[EB]
                 label_Lamp_EB.BackColor = Color.White;
                 label_Lamp_EB.ForeColor = Color.LightGray;
-                //表示灯[非常ブレーキ]
+                //状態表示灯[非常ブレーキ]
                 label_Lamp_EmergencyBrake.BackColor= Color.White;
                 label_Lamp_EmergencyBrake.ForeColor = Color.LightGray;
-                //表示灯[過負荷]
+                //状態表示灯[過負荷]
                 label_Lamp_Overload.BackColor = Color.White;
                 label_Lamp_Overload.ForeColor = Color.LightGray;
 
-                //ATS表示灯[種別]
+                //ATS表示器[種別]
                 label_ATSLamp_Class.Text = "普通";
-                //ATS表示灯[制限]
+                //ATS表示器[制限]
                 label_ATSLamp_Speed.Text = "110";
-                //ATS表示灯[状態]
+                //ATS表示器[状態]
                 label_ATSLamp_State.Text = "無表示";
 
                 //車両[●戸閉]
                 InitializeLabelCarDoor();
+                //車両[車種]
+                InitializeLabelCarModel();
                 //車両[BC圧力]
                 InitializeLabelCarBCPress();
                 //車両[電流]
                 InitializeLabelCarAmpere();
 
-                //TASC情報[ATO 状態]
-                label_ATO_State.Text = "制動待機";
-                //TASC情報[ATO P段数]
-                label_ATO_Notch.Text = "P0";
                 //TASC情報[TASC 状態]
                 label_TASC_State.Text = "制動待機";
                 //TASC情報[TASC 停車P]
@@ -564,10 +606,23 @@ namespace TrainCrewMoniter
                 label_TASC_SAPPressure.Text = "0.00kPa";
                 //TASC情報[TASC B段数]
                 label_TASC_Notch.Text = "B0";
+                label_TASC_Notch.BackColor = Color.White;
+                label_TASC_Notch.ForeColor = Color.Black;
                 //TASC情報[TASC 勾配値]
                 label_TASC_Gradient.Text = "0.00‰";
                 //TASC情報[TASC 開始距離]
                 label_TASC_Distance.Text = "0.00m";
+                //TASC情報[ATO 状態]
+                label_ATO_State.Text = "制動待機";
+                //TASC情報[ATO P段数]
+                label_ATO_Notch.Text = "P0";
+                label_ATO_Notch.BackColor = Color.White;
+                label_ATO_Notch.ForeColor= Color.Black;
+                //ATO情報[ATO 出発ボタン]
+                label_ATO_LButton.BackColor = Color.White;
+                label_ATO_RButton.BackColor = Color.White;
+                label_ATO_LButton.ForeColor = Color.Black;
+                label_ATO_RButton.ForeColor = Color.Black;
                 //TASC変数
                 tasc.fTASCPatternSpeed = 120.0f;
                 tasc.fTASCLimitPatternSpeed = 120.0f;

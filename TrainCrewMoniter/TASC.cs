@@ -885,6 +885,14 @@ namespace TrainCrewMoniter
                         iATONotch = 0;
                         sATOPhase = "機外停車";
                     }
+                    //停車パターン・速度制御パターンに接近したら制御待機へ遷移
+                    else if ((fTASCPatternSpeed <= speed && speed < fTASCPatternSpeed + 10.0f)
+                        || (IsTASCSpeedControlEnable && (int)fTASCLimitPatternSpeed <= speed && speed < (int)fTASCLimitPatternSpeed + 10.0f))
+                    {
+                        iATONotch = 0;
+                        IsATOMaxSpeedReached = true;
+                        sATOPhase = "制御待機";
+                    }
                     //最高速度に到達したら制御待機へ遷移
                     else if ((fATOMaxSpeed <= 70.0f && (fATOMaxSpeed - 2.0f) <= speed)
                         || (fATOMaxSpeed > 70.0f && (fATOMaxSpeed - 1.0f) <= speed))
@@ -1484,7 +1492,7 @@ public class GradientClass
 }
 
 /// <summary>
-/// 勾配情報クラス
+/// 最高速度情報クラス
 /// </summary>
 public class MaxSpeedClass
 {
