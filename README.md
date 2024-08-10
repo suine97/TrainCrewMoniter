@@ -1,7 +1,8 @@
 # TrainCrewMoniter
 
 TrainCrewMoniterは、溝月レイル/Acty様製作の列車運転ゲーム「TRAIN CREW」で動作する、TASC機能付きモニタリングソフトです。
-![image](https://github.com/suine97/TrainCrewMoniter/assets/174926950/04b9ef26-1d8e-4cdf-9086-b765045fd7cb)
+![1](https://github.com/user-attachments/assets/deaf0efc-cadf-4cdc-a88f-48d8da32ab42)
+
 
 # 使い方
 1、TRAIN CREWの操作設定→外部デバイス入出力を「有効」に設定してください。
