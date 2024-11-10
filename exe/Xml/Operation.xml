@@ -2,6 +2,55 @@
 <Xml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<Value>
 		<Direction>下り</Direction>
+		<StationName>西赤山</StationName>
+		<StartPos>535</StartPos>
+		<EndPos>300</EndPos>
+		<Operation>抑速</Operation>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>奥峯口</StationName>
+		<StartPos>960</StartPos>
+		<EndPos>22</EndPos>
+		<Operation>抑速</Operation>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>日野森</StationName>
+		<StartPos>1200</StartPos>
+		<EndPos>140</EndPos>
+		<Operation>抑速</Operation>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>高見沢</StationName>
+		<StartPos>1445</StartPos>
+		<EndPos>200</EndPos>
+		<Operation>抑速</Operation>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>水越</StationName>
+		<StartPos>1580</StartPos>
+		<EndPos>300</EndPos>
+		<Operation>抑速</Operation>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>藤江</StationName>
+		<StartPos>1270</StartPos>
+		<EndPos>130</EndPos>
+		<Operation>抑速</Operation>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>大道寺</StationName>
+		<StartPos>2070</StartPos>
+		<EndPos>730</EndPos>
+		<Operation>抑速</Operation>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
 		<StationName>新野崎</StationName>
 		<StartPos>870</StartPos>
 		<EndPos>370</EndPos>

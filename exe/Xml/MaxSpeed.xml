@@ -2,6 +2,62 @@
 <Xml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<Value>
 		<Direction>下り</Direction>
+		<StationName>赤山町</StationName>
+		<Class>普通</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>90</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>西赤山</StationName>
+		<Class>普通</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>90</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>奥峯口</StationName>
+		<Class>普通</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>95</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>日野森</StationName>
+		<Class>普通</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>95</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>高見沢</StationName>
+		<Class>普通</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>90</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>水越</StationName>
+		<Class>普通</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>90</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>藤江</StationName>
+		<Class>普通</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>90</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
 		<StationName>大道寺引上線</StationName>
 		<Class>普通</Class>
 		<StartPos>2000</StartPos>
@@ -12,9 +68,9 @@
 		<Direction>下り</Direction>
 		<StationName>大道寺</StationName>
 		<Class>普通</Class>
-		<StartPos>2000</StartPos>
+		<StartPos>3000</StartPos>
 		<EndPos>0</EndPos>
-		<MaxSpeed>40</MaxSpeed>
+		<MaxSpeed>90</MaxSpeed>
 	</Value>
 	<Value>
 		<Direction>下り</Direction>
@@ -114,6 +170,62 @@
 	</Value>
 	<Value>
 		<Direction>下り</Direction>
+		<StationName>赤山町</StationName>
+		<Class>その他</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>90</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>西赤山</StationName>
+		<Class>その他</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>90</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>奥峯口</StationName>
+		<Class>その他</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>95</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>日野森</StationName>
+		<Class>その他</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>95</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>高見沢</StationName>
+		<Class>その他</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>90</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>水越</StationName>
+		<Class>その他</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>90</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
+		<StationName>藤江</StationName>
+		<Class>その他</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>90</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>下り</Direction>
 		<StationName>大道寺引上線</StationName>
 		<Class>その他</Class>
 		<StartPos>2000</StartPos>
@@ -124,9 +236,9 @@
 		<Direction>下り</Direction>
 		<StationName>大道寺</StationName>
 		<Class>その他</Class>
-		<StartPos>2000</StartPos>
+		<StartPos>3000</StartPos>
 		<EndPos>0</EndPos>
-		<MaxSpeed>40</MaxSpeed>
+		<MaxSpeed>90</MaxSpeed>
 	</Value>
 	<Value>
 		<Direction>下り</Direction>
@@ -332,9 +444,65 @@
 		<Direction>上り</Direction>
 		<StationName>大道寺</StationName>
 		<Class>普通</Class>
-		<StartPos>2000</StartPos>
+		<StartPos>3000</StartPos>
 		<EndPos>0</EndPos>
 		<MaxSpeed>75</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>上り</Direction>
+		<StationName>藤江</StationName>
+		<Class>普通</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>90</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>上り</Direction>
+		<StationName>水越</StationName>
+		<Class>普通</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>90</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>上り</Direction>
+		<StationName>高見沢</StationName>
+		<Class>普通</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>90</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>上り</Direction>
+		<StationName>日野森</StationName>
+		<Class>普通</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>95</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>上り</Direction>
+		<StationName>奥峯口</StationName>
+		<Class>普通</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>95</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>上り</Direction>
+		<StationName>西赤山</StationName>
+		<Class>普通</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>95</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>上り</Direction>
+		<StationName>赤山町</StationName>
+		<Class>普通</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>90</MaxSpeed>
 	</Value>
 	<Value>
 		<Direction>上り</Direction>
@@ -444,8 +612,64 @@
 		<Direction>上り</Direction>
 		<StationName>大道寺</StationName>
 		<Class>その他</Class>
-		<StartPos>2000</StartPos>
+		<StartPos>3000</StartPos>
 		<EndPos>0</EndPos>
 		<MaxSpeed>75</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>上り</Direction>
+		<StationName>藤江</StationName>
+		<Class>その他</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>90</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>上り</Direction>
+		<StationName>水越</StationName>
+		<Class>その他</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>90</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>上り</Direction>
+		<StationName>高見沢</StationName>
+		<Class>その他</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>90</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>上り</Direction>
+		<StationName>日野森</StationName>
+		<Class>その他</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>95</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>上り</Direction>
+		<StationName>奥峯口</StationName>
+		<Class>その他</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>95</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>上り</Direction>
+		<StationName>西赤山</StationName>
+		<Class>その他</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>95</MaxSpeed>
+	</Value>
+	<Value>
+		<Direction>上り</Direction>
+		<StationName>赤山町</StationName>
+		<Class>その他</Class>
+		<StartPos>3000</StartPos>
+		<EndPos>0</EndPos>
+		<MaxSpeed>90</MaxSpeed>
 	</Value>
 </Xml>

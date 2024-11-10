@@ -5,6 +5,8 @@ using System.Xml.Linq;
 using System.Text.RegularExpressions;
 using TrainCrew;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
+using System.Drawing;
 
 namespace TrainCrewMoniter
 {
@@ -220,7 +222,7 @@ namespace TrainCrewMoniter
         /// <summary>
         /// 勾配係数
         /// </summary>
-        private readonly int iGradientCoefficient = 31;
+        private readonly int iGradientCoefficient = 35;
 
         /// <summary>
         /// 停止位置範囲
@@ -594,11 +596,20 @@ namespace TrainCrewMoniter
                 fTASCXmlLimitDistance = xmlLimitDistance;
             }
 
+            //TASC残距離取得用
+            int tascFixedPointDistance = 1000;
+            if (dist < 50) tascFixedPointDistance = 50;
+            else if (dist < 150) tascFixedPointDistance = 150;
+            else if (dist < 300) tascFixedPointDistance = 300;
+            else if (dist < 600) tascFixedPointDistance = 600;
+
             //TASC勾配平均値演算
-            if (IsTASCOperation)
-                fTASCGradientAverage = CalcTASCAverageGradient(state, dist, fStopPositionOffset);
+            if (IsTASCEnable)
+                fTASCGradientAverage = CalcAverageGradientToAbsolutePosition(state, tascFixedPointDistance, 0.0f, fStopPositionOffset);
+            else if (state.nextSpeedLimit >= 0.0f)
+                fTASCGradientAverage = CalcAverageGradientToAbsolutePosition(state, dist, dist - fTASCXmlLimitDistance, fStopPositionOffset);
             else
-                fTASCGradientAverage = CalcTASCAverageGradient(state, fTASCXmlLimitDistance, fStopPositionOffset);
+                fTASCGradientAverage = CalcAverageGradientToRelativePosition(state, dist, 600.0f, fStopPositionOffset);
 
             //TASC追加操作取得
             sTASCAdditionalOperation = GetTASCAdditionalOperation(state, dist, fStopPositionOffset);
@@ -696,7 +707,7 @@ namespace TrainCrewMoniter
                         sTASCPhase = "速度制御";
                     }
                     //速度制御が有効かつ追加操作が設定されていたら遷移
-                    else if (IsTASCSpeedControlEnable && sTASCAdditionalOperation == "抑速")
+                    else if (IsTASCSpeedControlEnable && sTASCAdditionalOperation == "抑速" && state.Pnotch == 0 && iATONotch == 0)
                     {
                         strTASCPhase = sTASCPhase;
                         sTASCPhase = "抑速制御";
@@ -792,16 +803,8 @@ namespace TrainCrewMoniter
                         //ツーハンドル車は別処理
                         if (IsTwoHandle)
                         {
-                            if (fTASCGradientAverage > -5.0f)
-                            {
-                                iTASCNotch = -1;
-                                fTASCSAPPressure = 50.0f;
-                            }
-                            else
-                            {
-                                iTASCNotch = -2;
-                                fTASCSAPPressure = 100.0f;
-                            }
+                            iTASCNotch = -1;
+                            fTASCSAPPressure = 50.0f;
                         }
                         else
                         {
@@ -1249,6 +1252,8 @@ namespace TrainCrewMoniter
         /// <returns></returns>
         private float CalcTASCStoppingDistance(float nowSpeed, float deceleration)
         {
+            if (!fTASCGradientAverage.IsZero()) deceleration += (fTASCGradientAverage / iGradientCoefficient);
+
             //停止距離演算
             float d = (float)(Math.Pow(nowSpeed, 2) / (7.2 * deceleration));
 
@@ -1290,6 +1295,74 @@ namespace TrainCrewMoniter
         }
 
         /// <summary>
+        /// 現在位置から相対位置までの区間における勾配平均値を計算するメソッド
+        /// </summary>
+        /// <param name="_state">列車の状態</param>
+        /// <param name="distance">現在位置の距離[m]</param>
+        /// <param name="targetDistance">目標位置までの相対距離[m]</param>
+        /// <param name="offset">距離オフセット[m]</param>
+        /// <returns></returns>
+        private float CalcAverageGradientToRelativePosition(TrainState _state, float distance, float targetDistance, float offset)
+        {
+            string direction = data.IsEven(int.Parse(Regex.Replace(_state.diaName, @"[^0-9]", ""))) ? "上り" : "下り";
+            float average = 0.0f;
+            float startDist = Math.Max(distance, 0.0f);
+            float endDist = Math.Max(distance - targetDistance, 0.0f);
+
+            // 開始距離が終了距離を超えている場合、入れ替え
+            if (startDist > endDist) (endDist, startDist) = (startDist, endDist);
+            try
+            {
+                var gradientsInRange = GradientList
+                    .Where(s => s.Direction == direction)
+                    .Where(s => s.StationName == _state.nextStaName)
+                    .Where(s => s.Distance - offset >= startDist && s.Distance - offset <= endDist)
+                    .Select(s => s.Gradient);
+
+                // 一致したデータがあれば平均を計算
+                if (gradientsInRange.Any()) average = gradientsInRange.Average();
+            }
+            catch
+            {
+                return average;
+            }
+            return average;
+        }
+
+        /// <summary>
+        /// 現在位置から絶対位置までの区間における勾配平均値を計算するメソッド
+        /// </summary>
+        /// <param name="_state">列車の状態</param>
+        /// <param name="distance">現在位置の距離[m]</param>
+        /// <param name="targetDistance">目標の絶対距離[m]</param>
+        /// <param name="offset">距離オフセット[m]</param>
+        /// <returns>指定区間の勾配平均値</returns>
+        private float CalcAverageGradientToAbsolutePosition(TrainState _state, float distance, float targetDistance, float offset)
+        {
+            string direction = data.IsEven(int.Parse(Regex.Replace(_state.diaName, @"[^0-9]", ""))) ? "上り" : "下り";
+            float average = 0.0f;
+            float startDist = Math.Max(distance, 0.0f);
+            float endDist = targetDistance;
+
+            try
+            {
+                var gradientsInRange = GradientList
+                    .Where(s => s.Direction == direction)
+                    .Where(s => s.StationName == _state.nextStaName)
+                    .Where(s => s.Distance - offset >= endDist && s.Distance - offset <= startDist)
+                    .Select(s => s.Gradient);
+
+                // 一致したデータがあれば平均を計算
+                if (gradientsInRange.Any()) average = gradientsInRange.Average();
+            }
+            catch
+            {
+                return average;
+            }
+            return average;
+        }
+
+        /// <summary>
         /// TASC 制限速度取得メソッド
         /// </summary>
         /// <param name="_state">列車の状態</param>
@@ -1313,7 +1386,7 @@ namespace TrainCrewMoniter
                     .Where(s => s.Direction == direction)
                     .Where(s => s.BackStopPosName == _state.stationList[backStaIndex].StopPosName || s.NextStopPosName == _state.stationList[nowStaIndex].StopPosName)
                     .Where(s => (s.StartPos - offset) > dist && dist >= (s.EndPos - offset))
-                    .First();
+                    .FirstOrDefault();
 
                 //一致したデータがあれば取得
                 if (str != null)
@@ -1363,7 +1436,7 @@ namespace TrainCrewMoniter
                     .Select(s => s.AdditionalOperation);
 
                 //一致したデータがあれば取得
-                if (str != null && str.Any()) operation = str.First();
+                if (str != null && str.Any()) operation = str.FirstOrDefault();
             }
             catch
             {
@@ -1397,7 +1470,7 @@ namespace TrainCrewMoniter
                     .Select(s => s.MaxSpeed);
 
                 //一致したデータがあれば取得
-                if (str != null && str.Any()) maxSpeed = str.First();
+                if (str != null && str.Any()) maxSpeed = str.FirstOrDefault();
 
                 //ATOモード判定
                 if (sATOPatternMode == "回復")
@@ -1450,11 +1523,11 @@ namespace TrainCrewMoniter
                 var str = StopPositionOffsetList
                     .Where(s => s.Direction == direction)
                     .Where(s => s.StationName == _state.nextStaName)
-                    .Select(s => s.Offset[_state.CarStates.Count]);
+                    .Select(s => s.Offset[_state.CarStates.Count - 1]);
 
                 //一致したデータがあれば取得
                 if (str != null && str.Any() && _state.nextStopType.Contains("停車"))
-                    offset = str.First();
+                    offset = str.FirstOrDefault();
             }
             catch
             {
