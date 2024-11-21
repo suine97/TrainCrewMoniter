@@ -3,7 +3,7 @@
 	<Value>
 		<Direction>下り</Direction>
 		<StationName>西赤山</StationName>
-		<StartPos>535</StartPos>
+		<StartPos>600</StartPos>
 		<EndPos>300</EndPos>
 		<Operation>抑速</Operation>
 	</Value>

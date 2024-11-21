@@ -38,7 +38,7 @@
 		<Class>普通</Class>
 		<StartPos>3000</StartPos>
 		<EndPos>0</EndPos>
-		<MaxSpeed>90</MaxSpeed>
+		<MaxSpeed>75</MaxSpeed>
 	</Value>
 	<Value>
 		<Direction>下り</Direction>
@@ -46,7 +46,7 @@
 		<Class>普通</Class>
 		<StartPos>3000</StartPos>
 		<EndPos>0</EndPos>
-		<MaxSpeed>90</MaxSpeed>
+		<MaxSpeed>75</MaxSpeed>
 	</Value>
 	<Value>
 		<Direction>下り</Direction>
@@ -70,7 +70,7 @@
 		<Class>普通</Class>
 		<StartPos>3000</StartPos>
 		<EndPos>0</EndPos>
-		<MaxSpeed>90</MaxSpeed>
+		<MaxSpeed>80</MaxSpeed>
 	</Value>
 	<Value>
 		<Direction>下り</Direction>
@@ -206,7 +206,7 @@
 		<Class>その他</Class>
 		<StartPos>3000</StartPos>
 		<EndPos>0</EndPos>
-		<MaxSpeed>90</MaxSpeed>
+		<MaxSpeed>75</MaxSpeed>
 	</Value>
 	<Value>
 		<Direction>下り</Direction>
@@ -214,7 +214,7 @@
 		<Class>その他</Class>
 		<StartPos>3000</StartPos>
 		<EndPos>0</EndPos>
-		<MaxSpeed>90</MaxSpeed>
+		<MaxSpeed>75</MaxSpeed>
 	</Value>
 	<Value>
 		<Direction>下り</Direction>
@@ -238,7 +238,7 @@
 		<Class>その他</Class>
 		<StartPos>3000</StartPos>
 		<EndPos>0</EndPos>
-		<MaxSpeed>90</MaxSpeed>
+		<MaxSpeed>80</MaxSpeed>
 	</Value>
 	<Value>
 		<Direction>下り</Direction>
@@ -454,7 +454,7 @@
 		<Class>普通</Class>
 		<StartPos>3000</StartPos>
 		<EndPos>0</EndPos>
-		<MaxSpeed>90</MaxSpeed>
+		<MaxSpeed>80</MaxSpeed>
 	</Value>
 	<Value>
 		<Direction>上り</Direction>
@@ -470,7 +470,7 @@
 		<Class>普通</Class>
 		<StartPos>3000</StartPos>
 		<EndPos>0</EndPos>
-		<MaxSpeed>90</MaxSpeed>
+		<MaxSpeed>75</MaxSpeed>
 	</Value>
 	<Value>
 		<Direction>上り</Direction>
@@ -478,7 +478,7 @@
 		<Class>普通</Class>
 		<StartPos>3000</StartPos>
 		<EndPos>0</EndPos>
-		<MaxSpeed>95</MaxSpeed>
+		<MaxSpeed>75</MaxSpeed>
 	</Value>
 	<Value>
 		<Direction>上り</Direction>
@@ -502,7 +502,7 @@
 		<Class>普通</Class>
 		<StartPos>3000</StartPos>
 		<EndPos>0</EndPos>
-		<MaxSpeed>90</MaxSpeed>
+		<MaxSpeed>85</MaxSpeed>
 	</Value>
 	<Value>
 		<Direction>上り</Direction>
@@ -622,7 +622,7 @@
 		<Class>その他</Class>
 		<StartPos>3000</StartPos>
 		<EndPos>0</EndPos>
-		<MaxSpeed>90</MaxSpeed>
+		<MaxSpeed>80</MaxSpeed>
 	</Value>
 	<Value>
 		<Direction>上り</Direction>
@@ -638,7 +638,7 @@
 		<Class>その他</Class>
 		<StartPos>3000</StartPos>
 		<EndPos>0</EndPos>
-		<MaxSpeed>90</MaxSpeed>
+		<MaxSpeed>75</MaxSpeed>
 	</Value>
 	<Value>
 		<Direction>上り</Direction>
@@ -646,7 +646,7 @@
 		<Class>その他</Class>
 		<StartPos>3000</StartPos>
 		<EndPos>0</EndPos>
-		<MaxSpeed>95</MaxSpeed>
+		<MaxSpeed>75</MaxSpeed>
 	</Value>
 	<Value>
 		<Direction>上り</Direction>
@@ -670,6 +670,6 @@
 		<Class>その他</Class>
 		<StartPos>3000</StartPos>
 		<EndPos>0</EndPos>
-		<MaxSpeed>90</MaxSpeed>
+		<MaxSpeed>85</MaxSpeed>
 	</Value>
 </Xml>

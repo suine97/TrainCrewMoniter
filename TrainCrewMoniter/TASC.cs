@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using TrainCrew;
-using System.Threading.Tasks;
-using System.Security.Cryptography;
-using System.Drawing;
 
 namespace TrainCrewMoniter
 {
@@ -237,7 +235,7 @@ namespace TrainCrewMoniter
         /// <summary>
         /// 空走時間[s]
         /// </summary>
-        private readonly float[] freeRunningTime = new float[10]
+        private readonly float[] freeRunningTime = new float[12]
         {
             2.0f, //None
             2.0f, //5320形
@@ -249,12 +247,14 @@ namespace TrainCrewMoniter
             2.0f, //50000形
             2.0f, //3300形VVVF
             2.0f, //3020形
+            2.0f, //4600形
+            2.0f, //5600形
         };
 
         /// <summary>
         /// 最大減速度[km/h/s]
         /// </summary>
-        private readonly float[] maxDeceleration = new float[10]
+        private readonly float[] maxDeceleration = new float[12]
         {
             4.60f, //None
             4.60f, //5320形
@@ -266,12 +266,14 @@ namespace TrainCrewMoniter
             4.60f, //50000形
             4.60f, //3300形VVVF
             3.50f, //3020形
+            4.60f, //4600形
+            4.60f, //5600形
         };
 
         /// <summary>
         /// 最大SAP圧力値[kPa]
         /// </summary>
-        private readonly float[] maxPressure = new float[10]
+        private readonly float[] maxPressure = new float[12]
         {
             400.00f, //None
             400.00f, //5320形
@@ -283,12 +285,14 @@ namespace TrainCrewMoniter
             400.00f, //50000形
             400.00f, //3300形VVVF
             400.00f, //3020形
+            400.00f, //4600形
+            400.00f, //5600形
         };
 
         /// <summary>
         /// 減速度係数(%)
         /// </summary>
-        private readonly float[][] constDeceleration = new float[10][]
+        private readonly float[][] constDeceleration = new float[12][]
         {
             new float[] { 0.00f, 0.00f, 0.18f, 0.33f, 0.49f, 0.61f, 0.75f, 0.89f, 1.00f }, //None
             new float[] { 0.00f, 0.00f, 0.18f, 0.33f, 0.49f, 0.61f, 0.75f, 0.89f, 1.00f }, //5320形
@@ -300,6 +304,8 @@ namespace TrainCrewMoniter
             new float[] { 0.00f, 0.00f, 0.18f, 0.33f, 0.49f, 0.61f, 0.75f, 0.89f, 1.00f }, //50000形
             new float[] { 0.00f, 0.00f, 0.18f, 0.33f, 0.49f, 0.61f, 0.75f, 0.89f, 1.00f }, //3300形VVVF
             new float[] { 0.00f, 0.11f, 0.22f, 0.33f, 0.45f, 0.56f, 0.67f, 0.78f, 0.89f, 1.00f }, //3020形
+            new float[] { 0.00f, 0.00f, 0.18f, 0.33f, 0.49f, 0.61f, 0.75f, 0.89f, 1.00f }, //4600形
+            new float[] { 0.00f, 0.00f, 0.18f, 0.33f, 0.49f, 0.61f, 0.75f, 0.89f, 1.00f }, //5600形
         };
 
         /// <summary>
@@ -322,6 +328,8 @@ namespace TrainCrewMoniter
             series50000 = 7,
             Car3300V = 8,
             series3020 = 9,
+            series4600 = 10,
+            series5600 = 11,
         }
 
         /// <summary>
@@ -525,6 +533,16 @@ namespace TrainCrewMoniter
                     trainModel = TrainModel.series3020;
                     IsTwoHandle = true;
                     IsSMEEBrake = true;
+                    break;
+                case "4600":
+                    trainModel = TrainModel.series4600;
+                    IsTwoHandle = false;
+                    IsSMEEBrake = false;
+                    break;
+                case "5600":
+                    trainModel = TrainModel.series5600;
+                    IsTwoHandle = false;
+                    IsSMEEBrake = false;
                     break;
                 default:
                     trainModel = TrainModel.series5320;
