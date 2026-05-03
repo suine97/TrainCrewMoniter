@@ -747,7 +747,7 @@ namespace TrainCrewMoniter
                     {
                         sTASCPhase = "停車制御(低減)";
                     }
-                    //停止位置範囲外で停車した場合は制動待機へ遷移
+                    //停止位置範囲外で停車した場合は制御待機へ遷移
                     else if (fStopRange <= Math.Abs(remainigDistance) && speed.IsZero())
                     {
                         iTASCNotch = 0;
@@ -772,7 +772,7 @@ namespace TrainCrewMoniter
                         IsSAPReset = true;
                         sTASCPhase = "停車";
                     }
-                    //停止位置範囲外で停車した場合は制動待機へ遷移
+                    //停止位置範囲外で停車した場合は制御待機へ遷移
                     else if (fStopRange <= Math.Abs(remainigDistance) && speed.IsZero())
                     {
                         iTASCNotch = 0;
@@ -944,7 +944,7 @@ namespace TrainCrewMoniter
                     }
                     break;
                 case "駅停車":
-                    //停止位置情報が更新されたら加速制御
+                    //停止位置情報が更新されたら加速制御(P1)へ遷移
                     if ((!IsATOStartButtonControl || (IsATOStartButtonControl && IsATOStartButtonActive))
                         && fStopRange < Math.Abs(remainigDistance)
                         && state.Bnotch == 0
@@ -1236,7 +1236,7 @@ namespace TrainCrewMoniter
 
             //速度制限パターン演算
             float v = -time * dec + (float)Math.Sqrt((float)Math.Pow(time, 2) * (float)Math.Pow(dec, 2) + (float)Math.Pow(limitSpeed, 2) + 7.2f * dec * dist);
-            
+
             if (v < limitSpeed) v = limitSpeed;
 
             return v;
@@ -1292,37 +1292,6 @@ namespace TrainCrewMoniter
         }
 
         /// <summary>
-        /// TASC 勾配平均値計算メソッド
-        /// </summary>
-        /// <param name="_state">列車の状態</param>
-        /// <param name="distance">距離[m]</param>
-        /// <param name="offset">距離オフセット[m]</param>
-        /// <returns></returns>
-        private float CalcTASCAverageGradient(TrainState _state, float distance, float offset)
-        {
-            string direction = data.IsEven(int.Parse(Regex.Replace(_state.diaName, @"[^0-9]", ""))) ? "上り" : "下り";
-            float average = 0.0f;
-            float dist = distance;
-            if (dist < 0.0f) dist = 0.0f;
-            try
-            {
-                var str = GradientList
-                    .Where(s => s.Direction == direction)
-                    .Where(s => s.StationName == _state.nextStaName)
-                    .Where(s => (s.Distance - offset) < (dist + (_state.CarStates.Count() * 20.0f)))
-                    .Select(s => s.Gradient);
-
-                //一致したデータがあれば取得
-                if (str != null && str.Any()) average = str.Average();
-            }
-            catch
-            {
-                return average;
-            }
-            return average;
-        }
-
-        /// <summary>
         /// 現在位置から相対位置までの区間における勾配平均値を計算するメソッド
         /// </summary>
         /// <param name="_state">列車の状態</param>
@@ -1345,10 +1314,37 @@ namespace TrainCrewMoniter
                     .Where(s => s.Direction == direction)
                     .Where(s => s.StationName == _state.nextStaName)
                     .Where(s => s.Distance - offset >= startDist && s.Distance - offset <= endDist)
-                    .Select(s => s.Gradient);
+                    .Select(s => s.Gradient)
+                    .ToList();
 
                 // 一致したデータがあれば平均を計算
-                if (gradientsInRange.Any()) average = gradientsInRange.Average();
+                if (gradientsInRange.Any())
+                {
+                    average = gradientsInRange.Average();
+                }
+                // 一致しない場合、最も近い勾配を取得
+                else
+                {
+                    var gradientsNearlyRange = GradientList
+                        .Where(s => s.Direction == direction)
+                        .Where(s => s.StationName == _state.nextStaName)
+                        .Select(s => s.Distance - offset)
+                        .ToList();
+
+                    float closestStartDist = gradientsNearlyRange[data.FindClosestIndex(gradientsNearlyRange, startDist)];
+                    float closestEndDist = gradientsNearlyRange[data.FindClosestIndex(gradientsNearlyRange, endDist)];
+
+                    var gradients = GradientList
+                        .Where(s => s.Direction == direction)
+                        .Where(s => s.StationName == _state.nextStaName)
+                        .Where(s => s.Distance - offset >= closestStartDist && s.Distance - offset <= closestEndDist)
+                        .Select(s => s.Gradient);
+
+                    if (gradients.Any())
+                    {
+                        average = gradients.Average();
+                    }
+                }
             }
             catch
             {
@@ -1381,7 +1377,33 @@ namespace TrainCrewMoniter
                     .Select(s => s.Gradient);
 
                 // 一致したデータがあれば平均を計算
-                if (gradientsInRange.Any()) average = gradientsInRange.Average();
+                if (gradientsInRange.Any())
+                {
+                    average = gradientsInRange.Average();
+                }
+                // 一致しない場合、最も近い勾配を取得
+                else
+                {
+                    var gradientsNearlyRange = GradientList
+                        .Where(s => s.Direction == direction)
+                        .Where(s => s.StationName == _state.nextStaName)
+                        .Select(s => s.Distance - offset)
+                        .ToList();
+
+                    float closestStartDist = gradientsNearlyRange[data.FindClosestIndex(gradientsNearlyRange, startDist)];
+                    float closestEndDist = gradientsNearlyRange[data.FindClosestIndex(gradientsNearlyRange, endDist)];
+
+                    var gradients = GradientList
+                        .Where(s => s.Direction == direction)
+                        .Where(s => s.StationName == _state.nextStaName)
+                        .Where(s => s.Distance - offset >= closestStartDist && s.Distance - offset <= closestEndDist)
+                        .Select(s => s.Gradient);
+
+                    if (gradients.Any())
+                    {
+                        average = gradients.Average();
+                    }
+                }
             }
             catch
             {

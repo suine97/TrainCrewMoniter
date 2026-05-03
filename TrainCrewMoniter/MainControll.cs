@@ -184,8 +184,7 @@ namespace TrainCrewMoniter
 
             //運転画面遷移なら処理
             if (TrainCrewInput.gameState.gameScreen == GameScreen.MainGame
-                || TrainCrewInput.gameState.gameScreen == GameScreen.MainGame_Pause
-                || TrainCrewInput.gameState.gameScreen == GameScreen.MainGame_Loading)
+                || TrainCrewInput.gameState.gameScreen == GameScreen.MainGame_Pause)
             {
                 SuspendLayout();
 
@@ -301,7 +300,7 @@ namespace TrainCrewMoniter
                 }
                 else
                 {
-                    label_Lamp_TASCOperation.BackColor= Color.White;
+                    label_Lamp_TASCOperation.BackColor = Color.White;
                     label_Lamp_TASCOperation.ForeColor = Color.LightGray;
                 }
                 //状態表示灯[TASCブレーキ]
@@ -312,7 +311,7 @@ namespace TrainCrewMoniter
                 }
                 else
                 {
-                    label_Lamp_TASCBrake.BackColor= Color.White;
+                    label_Lamp_TASCBrake.BackColor = Color.White;
                     label_Lamp_TASCBrake.ForeColor = Color.LightGray;
                 }
                 //状態表示灯[回生]
@@ -323,7 +322,7 @@ namespace TrainCrewMoniter
                 }
                 else
                 {
-                    label_Lamp_Regeneration.BackColor= Color.White;
+                    label_Lamp_Regeneration.BackColor = Color.White;
                     label_Lamp_Regeneration.ForeColor = Color.LightGray;
                 }
                 //状態表示灯[EB]
@@ -334,7 +333,7 @@ namespace TrainCrewMoniter
                 }
                 else
                 {
-                    label_Lamp_EB.BackColor= Color.White;
+                    label_Lamp_EB.BackColor = Color.White;
                     label_Lamp_EB.ForeColor = Color.LightGray;
                 }
                 //状態表示灯[非常ブレーキ]
@@ -345,7 +344,7 @@ namespace TrainCrewMoniter
                 }
                 else
                 {
-                    label_Lamp_EmergencyBrake.BackColor= Color.White;
+                    label_Lamp_EmergencyBrake.BackColor = Color.White;
                     label_Lamp_EmergencyBrake.ForeColor = Color.LightGray;
                 }
                 //状態表示灯[過負荷]
@@ -356,7 +355,7 @@ namespace TrainCrewMoniter
                 }
                 else
                 {
-                    label_Lamp_Overload.BackColor= Color.White;
+                    label_Lamp_Overload.BackColor = Color.White;
                     label_Lamp_Overload.ForeColor = Color.LightGray;
                 }
 
@@ -465,7 +464,7 @@ namespace TrainCrewMoniter
                 }
                 //ATO情報[ATO 出発ボタン]
                 label_ATO_LButton.BackColor = leftKeyPressed ? Color.Green : Color.White;
-                label_ATO_RButton.BackColor = rightKeyPressed ? Color.Green: Color.White;
+                label_ATO_RButton.BackColor = rightKeyPressed ? Color.Green : Color.White;
                 label_ATO_LButton.ForeColor = leftKeyPressed ? Color.White : Color.Black;
                 label_ATO_RButton.ForeColor = rightKeyPressed ? Color.White : Color.Black;
 
@@ -572,7 +571,7 @@ namespace TrainCrewMoniter
                 label_Lamp_EB.BackColor = Color.White;
                 label_Lamp_EB.ForeColor = Color.LightGray;
                 //状態表示灯[非常ブレーキ]
-                label_Lamp_EmergencyBrake.BackColor= Color.White;
+                label_Lamp_EmergencyBrake.BackColor = Color.White;
                 label_Lamp_EmergencyBrake.ForeColor = Color.LightGray;
                 //状態表示灯[過負荷]
                 label_Lamp_Overload.BackColor = Color.White;
@@ -617,7 +616,7 @@ namespace TrainCrewMoniter
                 //TASC情報[ATO P段数]
                 label_ATO_Notch.Text = "P0";
                 label_ATO_Notch.BackColor = Color.White;
-                label_ATO_Notch.ForeColor= Color.Black;
+                label_ATO_Notch.ForeColor = Color.Black;
                 //ATO情報[ATO 出発ボタン]
                 label_ATO_LButton.BackColor = Color.White;
                 label_ATO_RButton.BackColor = Color.White;
@@ -747,7 +746,7 @@ namespace TrainCrewMoniter
                 IsATOStartButtonChecked = check_ATO_StartButtonEnable.Checked;
                 check_ATO_StartButtonEnable.Checked = false;
                 check_ATO_StartButtonEnable.Enabled = false;
-                
+
                 radio_ATO_High.Enabled = false;
                 radio_ATO_Normal.Enabled = false;
                 radio_ATO_Low.Enabled = false;

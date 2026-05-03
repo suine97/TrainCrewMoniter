@@ -131,7 +131,7 @@
             this.label46 = new System.Windows.Forms.Label();
             this.label_Car6_BCPress = new System.Windows.Forms.Label();
             this.label48 = new System.Windows.Forms.Label();
-            this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.group_TrainStatus = new System.Windows.Forms.GroupBox();
             this.label11 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
@@ -163,7 +163,7 @@
             this.groupBox4.SuspendLayout();
             this.group_Laｍp.SuspendLayout();
             this.groupBox5.SuspendLayout();
-            this.groupBox6.SuspendLayout();
+            this.group_TrainStatus.SuspendLayout();
             this.SuspendLayout();
             // 
             // group_Car1
@@ -1478,35 +1478,35 @@
             this.label48.TabIndex = 14;
             this.label48.Text = "車種：";
             // 
-            // groupBox6
+            // group_TrainStatus
             // 
-            this.groupBox6.Controls.Add(this.label11);
-            this.groupBox6.Controls.Add(this.label8);
-            this.groupBox6.Controls.Add(this.label10);
-            this.groupBox6.Controls.Add(this.label14);
-            this.groupBox6.Controls.Add(this.label16);
-            this.groupBox6.Controls.Add(this.label22);
-            this.groupBox6.Controls.Add(this.label_CarInfo_Reverser);
-            this.groupBox6.Controls.Add(this.label17);
-            this.groupBox6.Controls.Add(this.label_CarInfo_NextStation);
-            this.groupBox6.Controls.Add(this.label_CarInfo_Speed);
-            this.groupBox6.Controls.Add(this.label_CarInfo_CarLength);
-            this.groupBox6.Controls.Add(this.label_CarInfo_BoundFor);
-            this.groupBox6.Controls.Add(this.label_CarInfo_MRPress);
-            this.groupBox6.Controls.Add(this.label_CarInfo_Class);
-            this.groupBox6.Controls.Add(this.label_CarInfo_BNotch);
-            this.groupBox6.Controls.Add(this.label12);
-            this.groupBox6.Controls.Add(this.label21);
-            this.groupBox6.Controls.Add(this.label_CarInfo_PNotch);
-            this.groupBox6.Controls.Add(this.label_CarInfo_DiaName);
-            this.groupBox6.Controls.Add(this.label19);
-            this.groupBox6.ForeColor = System.Drawing.Color.Blue;
-            this.groupBox6.Location = new System.Drawing.Point(448, 12);
-            this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(175, 275);
-            this.groupBox6.TabIndex = 66;
-            this.groupBox6.TabStop = false;
-            this.groupBox6.Text = "列車情報";
+            this.group_TrainStatus.Controls.Add(this.label11);
+            this.group_TrainStatus.Controls.Add(this.label8);
+            this.group_TrainStatus.Controls.Add(this.label10);
+            this.group_TrainStatus.Controls.Add(this.label14);
+            this.group_TrainStatus.Controls.Add(this.label16);
+            this.group_TrainStatus.Controls.Add(this.label22);
+            this.group_TrainStatus.Controls.Add(this.label_CarInfo_Reverser);
+            this.group_TrainStatus.Controls.Add(this.label17);
+            this.group_TrainStatus.Controls.Add(this.label_CarInfo_NextStation);
+            this.group_TrainStatus.Controls.Add(this.label_CarInfo_Speed);
+            this.group_TrainStatus.Controls.Add(this.label_CarInfo_CarLength);
+            this.group_TrainStatus.Controls.Add(this.label_CarInfo_BoundFor);
+            this.group_TrainStatus.Controls.Add(this.label_CarInfo_MRPress);
+            this.group_TrainStatus.Controls.Add(this.label_CarInfo_Class);
+            this.group_TrainStatus.Controls.Add(this.label_CarInfo_BNotch);
+            this.group_TrainStatus.Controls.Add(this.label12);
+            this.group_TrainStatus.Controls.Add(this.label21);
+            this.group_TrainStatus.Controls.Add(this.label_CarInfo_PNotch);
+            this.group_TrainStatus.Controls.Add(this.label_CarInfo_DiaName);
+            this.group_TrainStatus.Controls.Add(this.label19);
+            this.group_TrainStatus.ForeColor = System.Drawing.Color.Blue;
+            this.group_TrainStatus.Location = new System.Drawing.Point(448, 12);
+            this.group_TrainStatus.Name = "group_TrainStatus";
+            this.group_TrainStatus.Size = new System.Drawing.Size(175, 275);
+            this.group_TrainStatus.TabIndex = 66;
+            this.group_TrainStatus.TabStop = false;
+            this.group_TrainStatus.Text = "列車情報";
             // 
             // label11
             // 
@@ -1754,7 +1754,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(774, 431);
-            this.Controls.Add(this.groupBox6);
+            this.Controls.Add(this.group_TrainStatus);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.group_Laｍp);
             this.Controls.Add(this.group_Car1);
@@ -1800,8 +1800,8 @@
             this.group_Laｍp.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
-            this.groupBox6.ResumeLayout(false);
-            this.groupBox6.PerformLayout();
+            this.group_TrainStatus.ResumeLayout(false);
+            this.group_TrainStatus.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -1911,7 +1911,7 @@
         private System.Windows.Forms.Label label46;
         private System.Windows.Forms.Label label_Car6_BCPress;
         private System.Windows.Forms.Label label48;
-        private System.Windows.Forms.GroupBox groupBox6;
+        private System.Windows.Forms.GroupBox group_TrainStatus;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label10;
