@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="MainControll.cs">
       <SubType>Form</SubType>
     </Compile>
