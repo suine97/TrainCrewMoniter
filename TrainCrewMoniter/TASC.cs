@@ -378,11 +378,6 @@ namespace TrainCrewMoniter
         private BrakingCurveSet curveSet = null;
 
         /// <summary>
-        /// 停止位置までの残り距離[m](ブレーキ曲線参照用)
-        /// </summary>
-        private float fCurveStopDistance = 0.0f;
-
-        /// <summary>
         /// コンストラクタ
         /// </summary>
         public TASC()
@@ -622,7 +617,6 @@ namespace TrainCrewMoniter
             {
                 curveSet = null;
             }
-            fCurveStopDistance = dist;
 
             //停止位置オフセット取得
             fStopPositionOffset = GetStopPositionOffset(state);
@@ -1101,16 +1095,15 @@ namespace TrainCrewMoniter
         {
             float dist = distance;
 
-            //現在速度における制限速度までの減速度算出(ブレーキ曲線があれば勾配込みで算出)
-            bool isCurve = TryCalcCurveDeceleration(nowSpeed, limitSpeed, fCurveStopDistance, fCurveStopDistance - dist, out float curveDec);
-            fTASCDeceleration = isCurve ? curveDec : CalcTASCDeceleration(nowSpeed, limitSpeed, dist);
-
-            //勾配値算出(ブレーキ曲線使用時は織り込み済みのため加算しない)
-            float gradientDec = (isCurve || fTASCGradientAverage.IsZero()) ? 0.0f : (fTASCGradientAverage / iGradientCoefficient);
+            //勾配値算出
+            float gradientDec = fTASCGradientAverage.IsZero() ? 0.0f : (fTASCGradientAverage / iGradientCoefficient);
 
             //減速度[km/h/s]に変換した配列を生成
             float[] strCoinstDeceration = constDeceleration[(int)trainModel];
             List<float> notchDist = strCoinstDeceration.Select(i => i * maxDeceleration[(int)trainModel] + gradientDec).ToList();
+
+            //現在速度における制限速度までの減速度算出
+            fTASCDeceleration = CalcTASCDeceleration(nowSpeed, limitSpeed, dist);
 
             //演算減速度に最も近い段数のインデックスを出力
             int index = data.FindClosestIndex(notchDist, fTASCDeceleration);
@@ -1200,11 +1193,8 @@ namespace TrainCrewMoniter
             //最大SAP圧力値[kPa]を取得
             float strMaxPressure = maxPressure[(int)trainModel];
 
-            //現在速度における制限速度までの減速度算出(ブレーキ曲線があれば勾配込みで算出)
-            if (TryCalcCurveDeceleration(nowSpeed, limitSpeed, fCurveStopDistance, fCurveStopDistance - dist, out float curveDec))
-                fTASCDeceleration = curveDec;
-            else
-                fTASCDeceleration = CalcTASCDeceleration(nowSpeed, limitSpeed, dist);
+            //現在速度における制限速度までの減速度算出
+            fTASCDeceleration = CalcTASCDeceleration(nowSpeed, limitSpeed, dist);
 
             //減速度からSAP圧力値を算出
             float fPressure = (fTASCDeceleration / strMaxDeceration) * strMaxPressure;
@@ -1278,11 +1268,6 @@ namespace TrainCrewMoniter
             float dec = deceleration;
             float time = freeRunningTime[(int)trainModel];
             if (dist < 0.0f) dist = 0.0f;
-
-            //ブレーキ曲線があれば勾配込みのパターンを使用
-            if (TryCalcCurvePatternSpeed(limitSpeed, fCurveStopDistance, fCurveStopDistance - dist, dec, out float curveSpeed))
-                return (curveSpeed < limitSpeed) ? limitSpeed : curveSpeed;
-
             if (!fTASCGradientAverage.IsZero()) dec += (fTASCGradientAverage / iGradientCoefficient);
 
             //速度制限パターン演算
