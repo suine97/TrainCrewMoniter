@@ -368,6 +368,21 @@ namespace TrainCrewMoniter
         private readonly Data data = new Data();
 
         /// <summary>
+        /// ブレーキ曲線データ管理
+        /// </summary>
+        private readonly BrakingCurveRepository curveRepository = new BrakingCurveRepository();
+
+        /// <summary>
+        /// 現在の駅・方向・車両形式に一致するブレーキ曲線(無ければnull)
+        /// </summary>
+        private BrakingCurveSet curveSet = null;
+
+        /// <summary>
+        /// 停止位置までの残り距離[m](ブレーキ曲線参照用)
+        /// </summary>
+        private float fCurveStopDistance = 0.0f;
+
+        /// <summary>
         /// コンストラクタ
         /// </summary>
         public TASC()
@@ -591,8 +606,23 @@ namespace TrainCrewMoniter
                 IsTASCStoppedStation = false;
                 IsSAPReset = false;
                 IsGradientStart = false;
+                curveSet = null;
                 return;
             }
+
+            //ブレーキ曲線取得(駅・方向・形式が変わったときだけ読み込まれる)
+            int directionKey = GetDirectionKey(state);
+            if (directionKey >= 0)
+            {
+                curveRepository.Request(state.nextStaName, directionKey, (int)trainModel);
+                var current = curveRepository.Current;
+                curveSet = (current != null && current.Matches(state.nextStaName, directionKey, (int)trainModel)) ? current : null;
+            }
+            else
+            {
+                curveSet = null;
+            }
+            fCurveStopDistance = dist;
 
             //停止位置オフセット取得
             fStopPositionOffset = GetStopPositionOffset(state);
@@ -1011,15 +1041,16 @@ namespace TrainCrewMoniter
             float dist = distance;
             if (fTASCStoppingPattern > fTASCStoppingReductionPattern) dist = distance - fTASCDistanceOffset;
 
-            //勾配値算出
-            float gradientDec = fTASCGradientAverage.IsZero() ? 0.0f : (fTASCGradientAverage / iGradientCoefficient);
+            //現在速度における停止位置までの減速度算出(ブレーキ曲線があれば勾配込みで算出)
+            bool isCurve = TryCalcCurveDeceleration(nowSpeed, 0.0f, dist, 0.0f, out float curveDec);
+            fTASCDeceleration = isCurve ? curveDec : CalcTASCDeceleration(nowSpeed, 0.0f, dist);
+
+            //勾配値算出(ブレーキ曲線使用時は織り込み済みのため加算しない)
+            float gradientDec = (isCurve || fTASCGradientAverage.IsZero()) ? 0.0f : (fTASCGradientAverage / iGradientCoefficient);
 
             //減速度[km/h/s]に変換した配列を生成
             float[] strCoinstDeceration = constDeceleration[(int)trainModel];
             List<float> notchDist = strCoinstDeceration.Select(i => i * maxDeceleration[(int)trainModel] + gradientDec).ToList();
-
-            //現在速度における停止位置までの減速度算出
-            fTASCDeceleration = CalcTASCDeceleration(nowSpeed, 0.0f, dist);
 
             //演算減速度に最も近い段数のインデックスを出力
             int index = data.FindClosestIndex(notchDist, fTASCDeceleration);
@@ -1070,15 +1101,16 @@ namespace TrainCrewMoniter
         {
             float dist = distance;
 
-            //勾配値算出
-            float gradientDec = fTASCGradientAverage.IsZero() ? 0.0f : (fTASCGradientAverage / iGradientCoefficient);
+            //現在速度における制限速度までの減速度算出(ブレーキ曲線があれば勾配込みで算出)
+            bool isCurve = TryCalcCurveDeceleration(nowSpeed, limitSpeed, fCurveStopDistance, fCurveStopDistance - dist, out float curveDec);
+            fTASCDeceleration = isCurve ? curveDec : CalcTASCDeceleration(nowSpeed, limitSpeed, dist);
+
+            //勾配値算出(ブレーキ曲線使用時は織り込み済みのため加算しない)
+            float gradientDec = (isCurve || fTASCGradientAverage.IsZero()) ? 0.0f : (fTASCGradientAverage / iGradientCoefficient);
 
             //減速度[km/h/s]に変換した配列を生成
             float[] strCoinstDeceration = constDeceleration[(int)trainModel];
             List<float> notchDist = strCoinstDeceration.Select(i => i * maxDeceleration[(int)trainModel] + gradientDec).ToList();
-
-            //現在速度における制限速度までの減速度算出
-            fTASCDeceleration = CalcTASCDeceleration(nowSpeed, limitSpeed, dist);
 
             //演算減速度に最も近い段数のインデックスを出力
             int index = data.FindClosestIndex(notchDist, fTASCDeceleration);
@@ -1128,8 +1160,11 @@ namespace TrainCrewMoniter
             //最大SAP圧力値[kPa]を取得
             float strMaxPressure = maxPressure[(int)trainModel];
 
-            //現在速度における停止位置までの減速度算出
-            fTASCDeceleration = CalcTASCDeceleration(nowSpeed, 0.0f, dist);
+            //現在速度における停止位置までの減速度算出(ブレーキ曲線があれば勾配込みで算出)
+            if (TryCalcCurveDeceleration(nowSpeed, 0.0f, dist, 0.0f, out float curveDec))
+                fTASCDeceleration = curveDec;
+            else
+                fTASCDeceleration = CalcTASCDeceleration(nowSpeed, 0.0f, dist);
 
             //減速度からSAP圧力値を算出
             float fPressure = (fTASCDeceleration / strMaxDeceration) * strMaxPressure;
@@ -1165,8 +1200,11 @@ namespace TrainCrewMoniter
             //最大SAP圧力値[kPa]を取得
             float strMaxPressure = maxPressure[(int)trainModel];
 
-            //現在速度における制限速度までの減速度算出
-            fTASCDeceleration = CalcTASCDeceleration(nowSpeed, limitSpeed, dist);
+            //現在速度における制限速度までの減速度算出(ブレーキ曲線があれば勾配込みで算出)
+            if (TryCalcCurveDeceleration(nowSpeed, limitSpeed, fCurveStopDistance, fCurveStopDistance - dist, out float curveDec))
+                fTASCDeceleration = curveDec;
+            else
+                fTASCDeceleration = CalcTASCDeceleration(nowSpeed, limitSpeed, dist);
 
             //減速度からSAP圧力値を算出
             float fPressure = (fTASCDeceleration / strMaxDeceration) * strMaxPressure;
@@ -1191,6 +1229,10 @@ namespace TrainCrewMoniter
             float dec = deceleration;
             float time = freeRunningTime[(int)trainModel];
             if (dist < 0.0f) dist = 0.0f;
+
+            //ブレーキ曲線があれば勾配込みのパターンを使用
+            if (TryCalcCurvePatternSpeed(0.0f, dist, 0.0f, dec, out float curveSpeed)) return curveSpeed;
+
             if (!fTASCGradientAverage.IsZero()) dec += (fTASCGradientAverage / iGradientCoefficient);
 
             //停車パターン演算
@@ -1211,6 +1253,10 @@ namespace TrainCrewMoniter
             float dec = deceleration;
             float time = freeRunningTime[(int)trainModel];
             if (dist < 0.0f) dist = 0.0f;
+
+            //ブレーキ曲線があれば勾配込みのパターンを使用
+            if (TryCalcCurvePatternSpeed(0.0f, dist, 0.0f, dec, out float curveSpeed)) return curveSpeed;
+
             if (!fTASCGradientAverage.IsZero()) dec += (fTASCGradientAverage / iGradientCoefficient);
 
             //軽減パターン演算
@@ -1232,6 +1278,11 @@ namespace TrainCrewMoniter
             float dec = deceleration;
             float time = freeRunningTime[(int)trainModel];
             if (dist < 0.0f) dist = 0.0f;
+
+            //ブレーキ曲線があれば勾配込みのパターンを使用
+            if (TryCalcCurvePatternSpeed(limitSpeed, fCurveStopDistance, fCurveStopDistance - dist, dec, out float curveSpeed))
+                return (curveSpeed < limitSpeed) ? limitSpeed : curveSpeed;
+
             if (!fTASCGradientAverage.IsZero()) dec += (fTASCGradientAverage / iGradientCoefficient);
 
             //速度制限パターン演算
@@ -1289,6 +1340,137 @@ namespace TrainCrewMoniter
             if (d < 0f) d = 0.0f;
 
             return d;
+        }
+
+        /// <summary>
+        /// ブレーキ曲線 ノッチ別速度二乗差取得メソッド
+        /// </summary>
+        /// <param name="nowDistance">現在位置の停止位置までの距離[m]</param>
+        /// <param name="targetDistance">目標地点の停止位置までの距離[m]</param>
+        /// <param name="decelerations">ノッチ別の等価減速度[km/h/s](昇順)</param>
+        /// <param name="squaredDiffs">ノッチ別の速度二乗差[(km/h)^2]</param>
+        /// <returns>2ノッチ以上のデータが得られればtrue</returns>
+        /// <remarks>
+        /// 曲線上の2地点間の速度二乗差は、そのノッチで2地点間に失う運動エネルギー(勾配込み)に相当する。
+        /// </remarks>
+        private bool TryGetCurveSquaredDiffs(float nowDistance, float targetDistance, out List<float> decelerations, out List<float> squaredDiffs)
+        {
+            decelerations = new List<float>();
+            squaredDiffs = new List<float>();
+            if (curveSet == null || targetDistance < 0.0f || nowDistance < targetDistance) return false;
+
+            float[] strCoinstDeceration = constDeceleration[(int)trainModel];
+            float strMaxDeceration = maxDeceleration[(int)trainModel];
+            for (var notch = 1; notch < strCoinstDeceration.Length; notch++)
+            {
+                if (strCoinstDeceration[notch] <= 0.0f || !curveSet.HasNotch(notch)) continue;
+                if (!curveSet.TryGetSpeed(notch, nowDistance, out float nowSpeed)) return false;
+                if (!curveSet.TryGetSpeed(notch, targetDistance, out float targetSpeed)) return false;
+
+                decelerations.Add(strCoinstDeceration[notch] * strMaxDeceration);
+                squaredDiffs.Add(nowSpeed * nowSpeed - targetSpeed * targetSpeed);
+            }
+            return decelerations.Count >= 2;
+        }
+
+        /// <summary>
+        /// ブレーキ曲線 パターン速度演算メソッド
+        /// </summary>
+        /// <param name="targetSpeed">目標速度[km/h]</param>
+        /// <param name="nowDistance">現在位置の停止位置までの距離[m]</param>
+        /// <param name="targetDistance">目標地点の停止位置までの距離[m]</param>
+        /// <param name="deceleration">パターン減速度[km/h/s]</param>
+        /// <param name="speed">パターン速度[km/h]</param>
+        /// <returns>ブレーキ曲線から算出できればtrue</returns>
+        /// <remarks>パターン減速度を挟む2ノッチの速度二乗差を補間する。範囲外の減速度は端のノッチに丸める。</remarks>
+        private bool TryCalcCurvePatternSpeed(float targetSpeed, float nowDistance, float targetDistance, float deceleration, out float speed)
+        {
+            speed = 0.0f;
+            if (!TryGetCurveSquaredDiffs(nowDistance, targetDistance, out var decelerations, out var squaredDiffs)) return false;
+
+            int last = decelerations.Count - 1;
+            float squaredDiff;
+            if (deceleration <= decelerations[0])
+            {
+                squaredDiff = squaredDiffs[0];
+            }
+            else if (deceleration >= decelerations[last])
+            {
+                squaredDiff = squaredDiffs[last];
+            }
+            else
+            {
+                int i = 0;
+                while (deceleration > decelerations[i + 1]) i++;
+                float rate = (deceleration - decelerations[i]) / (decelerations[i + 1] - decelerations[i]);
+                squaredDiff = squaredDiffs[i] + (squaredDiffs[i + 1] - squaredDiffs[i]) * rate;
+            }
+
+            float squaredSpeed = targetSpeed * targetSpeed + squaredDiff;
+            speed = (squaredSpeed > 0.0f) ? (float)Math.Sqrt(squaredSpeed) : 0.0f;
+            return true;
+        }
+
+        /// <summary>
+        /// ブレーキ曲線 必要減速度演算メソッド
+        /// </summary>
+        /// <param name="nowSpeed">現在速度[km/h]</param>
+        /// <param name="targetSpeed">目標速度[km/h]</param>
+        /// <param name="nowDistance">現在位置の停止位置までの距離[m]</param>
+        /// <param name="targetDistance">目標地点の停止位置までの距離[m]</param>
+        /// <param name="deceleration">勾配込みの必要減速度を平坦換算した値[km/h/s]</param>
+        /// <returns>ブレーキ曲線から算出できればtrue</returns>
+        /// <remarks>
+        /// 現在速度から目標速度までに失うべき速度二乗差を挟む2ノッチから、等価減速度を補間する。
+        /// 戻り値の扱いは CalcTASCDeceleration に合わせる。
+        /// </remarks>
+        private bool TryCalcCurveDeceleration(float nowSpeed, float targetSpeed, float nowDistance, float targetDistance, out float deceleration)
+        {
+            deceleration = 5.0f;
+            if (!TryGetCurveSquaredDiffs(nowDistance, targetDistance, out var decelerations, out var squaredDiffs)) return false;
+
+            int last = decelerations.Count - 1;
+            if (squaredDiffs[0] <= 0.0f || squaredDiffs[last] <= squaredDiffs[0]) return false;
+
+            float required = nowSpeed * nowSpeed - targetSpeed * targetSpeed;
+            if (nowSpeed.IsZero() || required < 0.0f) return true;
+
+            if (required <= squaredDiffs[0])
+            {
+                deceleration = decelerations[0] * required / squaredDiffs[0];
+            }
+            else if (required >= squaredDiffs[last])
+            {
+                deceleration = decelerations[last] * required / squaredDiffs[last];
+            }
+            else
+            {
+                int i = 0;
+                while (required > squaredDiffs[i + 1]) i++;
+                float range = squaredDiffs[i + 1] - squaredDiffs[i];
+                float rate = (range > 0.0f) ? (required - squaredDiffs[i]) / range : 0.0f;
+                deceleration = decelerations[i] + (decelerations[i + 1] - decelerations[i]) * rate;
+            }
+
+            if (deceleration > 5.0f) deceleration = 5.0f;
+            return true;
+        }
+
+        /// <summary>
+        /// 進行方向キー取得メソッド
+        /// </summary>
+        /// <param name="_state">列車の状態</param>
+        /// <returns>ブレーキ曲線データの方向キー(0=下り, 1=上り、判定できなければ-1)</returns>
+        private int GetDirectionKey(TrainState _state)
+        {
+            try
+            {
+                return data.IsEven(int.Parse(Regex.Replace(_state.diaName, @"[^0-9]", ""))) ? 1 : 0;
+            }
+            catch
+            {
+                return -1;
+            }
         }
 
         /// <summary>

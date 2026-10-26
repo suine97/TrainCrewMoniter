@@ -51,8 +51,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BrakingCurve.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="Log.cs" />
+    <Compile Include="MessagePackReader.cs" />
     <Compile Include="MainControll.cs">
       <SubType>Form</SubType>
     </Compile>
